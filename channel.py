@@ -8,6 +8,20 @@ def two_ray_model(d, h_t, h_r):
 	return 10 * np.log10(((h_t*h_r) ** 2) / d ** 4)
 
 
+
+def loss_model(d, h_t, h_r):
+	'''
+	All unit are dB!!
+	'''
+	pathloss = two_ray_model(d, h_t, h_r)
+	fading = np.random.normal(0, 6) #np.random.normal(mean, sigma)
+
+	return pathloss + fading
+
+
+
+
+
 def SINR(rx_power, interference_noise_p, thermal_noise_p):
 	'''
 
@@ -44,9 +58,6 @@ def rx_Power(PL,tx_power, tx_gain, rx_gain):
 	'''
 	rx_power = PL + tx_power + tx_gain + rx_gain
 	return rx_power
-
-
-
 
 def main():
 	tx_p = 33 - 30 #dB
