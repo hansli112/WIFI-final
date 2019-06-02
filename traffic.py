@@ -1,9 +1,10 @@
 #queue for store packet(bits)
+from datetime import *
 
 class Packet:
     def __init__(self,deadline, length, ToWhom):
 
-        self.deadline = deadline
+        self.deadline = deadline # deadline is a datetime object
         self.length = length
         self.ToWhom = ToWhom
     def getDeadline(self):
