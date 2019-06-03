@@ -3,22 +3,29 @@ import numpy as np
 from datetime import *
 
 class Packet:
-    def __init__(self, ToWhom, deadline=3): #suppose default deadline is 3 sec
+    def __init__(self, ToWhom): #suppose default deadline is 3 sec
 
         self.ToWhom = ToWhom
 
-        length = random.randint(64*8, 1518*8)
-        self.length = length
+        self.length = random.randint(64*8, 1518*8)
 
-        self.deadline = deadline
+        self.deadline = random.randint(100, 3600)
 
         #priority = random.randint(0,7)
-        priority = ToWhom   #For the sake of simplicity
-        self.priority = priority
+        '''priority = ToWhom   #For the sake of simplicity'''
+        self.priority = random.randint(0, 5)
+
+    def __str__(self):
+        return "Packet(dest=" + str(self.ToWhom)  + ")"
 
 
     def getDeadline(self):
         return self.deadline
+
+    #decrease the time to live of packet
+    def decrease_TTL(self):
+        self.deadline -= 1
+
     def getToWhom(self):
 
         return self.ToWhom
@@ -28,6 +35,14 @@ class Packet:
 
     def getPriority(self):
         return self.priority
+
+
+        #show the status of packet
+    def show_status(self):
+        print("Deadline", self.deadline)
+        print("Length", self.length)
+        print("Priority", self.priority)
+        print("ToWhom", self.ToWhom)
 
 
 
@@ -59,27 +74,42 @@ class Traffic_generator():
         self.traffic = {}
 
         pkt_num  = np.random.randint(0, 5, self.UEs_num)
+        print(pkt_num)
             #If UEs_num==3, pkt_num==[5,5,5] which means their number of packets arrived is 5 at this moment(sec)
 
         for UE_id in range(self.UEs_num):
             pkt_storage = [] #store pkts
             self.traffic[UE_id] = pkt_storage
+
+
             for  i in range(pkt_num[UE_id]):  #pkt_num[UE_id]->The number of generated pkts(random length of each pkt) for UE(id=UE_id).
+
                 self.traffic[UE_id].append(Packet(UE_id))
 
-            
+
             self.log[UE_id] += total_bits(self.traffic[UE_id])
 
 
-            return self.traffic #{0:[Packet(0),Packet(0)]} represent there are two pkt generated for UE0 at this moment.
+        return self.traffic #{0:[Packet(0),Packet(0)]} represent there are two pkt generated for UE0 at this moment.
 
     def randSend(self):
+        #the arrival pattern(from the perspective of buffer) for each arrival round
+        traffic_values = [j for i in self.traffic.values() for j in i]
 
-        print("original:", self.traffic.values())
-        random.shiffle(self.traffic.values())
-        print("After:", self.traffic.values())
+        #the following prove that the order of arrival pkt is random
+        '''
+        for i in traffic_values:
+            print(i)
 
-        return randsend
+            print("------------------")
+
+
+        random.shuffle(traffic_values)
+        for i in traffic_values:
+            print(i)
+            print("------------------")
+        '''
+
 
 
 
@@ -123,10 +153,22 @@ def main():
 	users_buffer = []
 	users_buffer.insert(0,u1)
 	print(u1.isoverflow())
+
+
+    packet_1 = Packet("user8")
+    packet_1.show_status()
+    packet_1.decrease_TTL()
+    packet_1.show_status()
+    packet_2 = Packet("user4")
+    packet_2.show_status()
+    packet_2.decrease_TTL()
+    packet_2.show_status()
     '''
 
-    gen = Traffic_generator(2)
+
+    gen = Traffic_generator(3)
     print(gen.generate())
+    gen.randSend()
 
 
 
