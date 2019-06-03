@@ -1,16 +1,13 @@
 #queue for store packet(bits)
 import random
-import itertools
 
 class Packet:
-    id_number = itertools.count()
 
     def __init__(self, ToWhom):
         self.deadline = self.gen_random_deadline()
         self.length = self.gen_random_length()
         self.priority = self.gen_random_priority()
         self.ToWhom = ToWhom
-        self.id = next(Packet.id_number)
     
     #generate the size of packet by random
     def gen_random_length(self):
@@ -42,7 +39,6 @@ class Packet:
 
     #show the status of packet 
     def show_status(self):
-        print("ID", self.id)
         print("Deadline", self.deadline)
         print("Length", self.length)
         print("Priority", self.priority)
