@@ -26,6 +26,12 @@ class Packet:
         min_priority = 1
         return random.randint(min_priority, max_priority)
 
+    #generate the towhom of packet by random
+    def gen_random_towhom(self):
+	max_towhom = 50
+	min_towhom = 1
+	return random.randint(min_towhom, max_towhom)
+
     #show the status of packet 
     def show_status(self):
         print("Deadline", self.deadline)
