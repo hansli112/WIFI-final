@@ -67,12 +67,10 @@ class Queue:
         return self.buffer == []
 
     def enqueue(self, item):
-        self.buffer.append(item)
+        self.buffer.insert(0, item)
 
     def dequeue(self):
-        self.buffer.reverse()
         self.buffer.pop()
-        self.buffer.reverse()
 
     def isoverflow(self):
         size = 0
