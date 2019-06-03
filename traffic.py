@@ -41,8 +41,9 @@ class Queue:
 
         return size > self.capacity
 
-
-
+    def showstatus(self):
+	for i in range(len(self.buffer)):
+	    print(self.buffer[i])
 
 
 
