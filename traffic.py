@@ -1,12 +1,16 @@
 #queue for store packet(bits)
 import random
+import itertools
 
 class Packet:
+    id_number = itertools.count()
+
     def __init__(self, ToWhom):
         self.deadline = self.gen_random_deadline()
         self.length = self.gen_random_length()
         self.priority = self.gen_random_priority()
         self.ToWhom = ToWhom
+        self.id = next(Packet.id_number)
     
     #generate the size of packet by random
     def gen_random_length(self):
@@ -28,12 +32,17 @@ class Packet:
 
     #generate the towhom of packet by random
     def gen_random_towhom(self):
-	max_towhom = 50
-	min_towhom = 1
-	return random.randint(min_towhom, max_towhom)
+	    max_towhom = 50
+	    min_towhom = 1
+	    return random.randint(min_towhom, max_towhom)
+
+    #decrease the time to live of packet
+    def decrease_TTL(self):
+        self.deadline -= 1
 
     #show the status of packet 
     def show_status(self):
+        print("ID", self.id)
         print("Deadline", self.deadline)
         print("Length", self.length)
         print("Priority", self.priority)
@@ -75,9 +84,17 @@ class Queue:
 
         return size > self.capacity
 
-    def showstatus(self): 
+    #show the status of buffer
+    def show_status(self): 
         for i in range(len(self.buffer)):
             print(self.buffer[i])
+
+    #find the position of packet in the buffer
+    def show_packet_position(self, packet_id):
+        return self.buffer.index(packet_id)
+
+    #check the buffer, if the packet can't be sended, drop it 
+    #def if_drop_packet(self, packet_id, packet_TTL):
 
 
 def main():
@@ -91,6 +108,12 @@ def main():
     """
     packet_1 = Packet("user8")
     packet_1.show_status()
+    packet_1.decrease_TTL()
+    packet_1.show_status()
+    packet_2 = Packet("user4")
+    packet_2.show_status()
+    packet_2.decrease_TTL()
+    packet_2.show_status()
 
 if __name__ == '__main__':
     main()
