@@ -32,9 +32,9 @@ class Packet:
 
     #generate the towhom of packet by random
     def gen_random_towhom(self):
-	    max_towhom = 50
-	    min_towhom = 1
-	    return random.randint(min_towhom, max_towhom)
+	max_towhom = 50
+	min_towhom = 1
+	return random.randint(min_towhom, max_towhom)
 
     #decrease the time to live of packet
     def decrease_TTL(self):
