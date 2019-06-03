@@ -1,72 +1,149 @@
-#queue for store packet(bits)
 import random
+import numpy as np
+from datetime import *
+from itertools import chain  #remove nested list
 
 class Packet:
+    def __init__(self, ToWhom): #suppose default deadline is 3 sec
 
-    def __init__(self, ToWhom):
-        self.deadline = self.gen_random_deadline()
-        self.length = self.gen_random_length()
-        self.priority = self.gen_random_priority()
         self.ToWhom = ToWhom
-    
-    #generate the size of packet by random
-    def gen_random_length(self):
-        max_size = 100
-        min_size = 10
-        return random.randint(min_size, max_size)
 
-    #generate the deadline of packet by random
-    def gen_random_deadline(self):
-        max_deadline = 3600
-        min_deadline = 100
-        return random.randint(min_deadline, max_deadline)
+        self.length = random.randint(64*8, 1518*8)
 
-    #generate the priority of packet by random
-    def gen_random_priority(self):
-        max_priority = 5
-        min_priority = 1
-        return random.randint(min_priority, max_priority)
+        self.deadline = random.randint(100, 3600)
 
-    #generate the towhom of packet by random
-    def gen_random_towhom(self):
-	max_towhom = 50
-	min_towhom = 1
-	return random.randint(min_towhom, max_towhom)
+        #priority = random.randint(0,7)
+        '''priority = ToWhom   #For the sake of simplicity'''
+        self.priority = random.randint(0, 5)
+
+    def __str__(self):
+        return "Packet(dest=" + str(self.ToWhom)  + ")"
+
+
+    def getDeadline(self):
+        return self.deadline
 
     #decrease the time to live of packet
     def decrease_TTL(self):
         self.deadline -= 1
 
-    #show the status of packet 
+    def getToWhom(self):
+
+        return self.ToWhom
+
+    def	getLength(self):
+        return self.length
+
+    def getPriority(self):
+        return self.priority
+
+
+        #show the status of packet
     def show_status(self):
         print("Deadline", self.deadline)
         print("Length", self.length)
         print("Priority", self.priority)
         print("ToWhom", self.ToWhom)
 
-    def getDeadline(self):
-        return self.deadline
 
-    def getToWhom(self):
 
-        return self.ToWhom
 
-    def	size(self):
-        return self.length
 
-class Queue:
+def total_bits(packets):
+    '''
+    packets: (list) list of pkt objs.
+    '''
+    total_bits = 0
+    for pkt in packets:
+        total_bits += pkt.getLength()
+    return total_bits
+
+
+
+
+
+class Traffic_generator():
+    def __init__(self, UEs_num):
+        self.UEs_num = UEs_num
+
+        self.log = [0] * UEs_num   #record total number of bits have generated for each UE.
+                                     #Ex: self.log=[300, 400] which mean there are 300 and 400 bits have generated\
+                                           #for UE0 and UE1 respectively to date.
+
+    def generate(self):
+        pkt_num = []
+        self.traffic = {}
+
+        pkt_num  = np.random.randint(0, 5, self.UEs_num)
+        print(pkt_num)
+            #If UEs_num==3, pkt_num==[5,5,5] which means their number of packets arrived is 5 at this moment(sec)
+
+        for UE_id in range(self.UEs_num):
+            pkt_storage = [] #store pkts
+            self.traffic[UE_id] = pkt_storage
+
+
+            for  i in range(pkt_num[UE_id]):  #pkt_num[UE_id]->The number of generated pkts(random length of each pkt) for UE(id=UE_id).
+
+                self.traffic[UE_id].append(Packet(UE_id))
+
+
+            self.log[UE_id] += total_bits(self.traffic[UE_id])
+
+
+        return self.traffic #{0:[Packet(0),Packet(0)]} represent there are two pkt generated for UE0 at this moment.
+
+    def randSend(self):
+        #the arrival pattern(from the perspective of buffer) for each arrival round
+        traffic_values = [j for i in self.traffic.values() for j in i]
+
+        #the following prove that the order of arrival pkts is random
+        '''
+        for i in traffic_values:
+            print(i)
+
+            print("------------------")
+
+
+        random.shuffle(traffic_values)
+        for i in traffic_values:
+            print(i)
+            print("------------------")
+        '''
+
+        random.shuffle(traffic_values) #the order of arrival pkt is random
+
+        return traffic_values  #type(traffic_values) is list
+
+
+
+
+
+class Buffer:
     def __init__(self, capacity):
         self.buffer = [] #store pkt which would contain random length data
-        self.capacity = capacity #total length(bit) which the Queue can accommodate
+        self.capacity = capacity #total # of pkt which the Buffer can accommodate
+
+    def ViewBuffer(self):
+        return self.buffer
+
+    def __getitem__(self, index):
+            if index >= len(self.buffer) or len(self.buffer) == 0:
+                return None
+
+            return self.buffer[index]
 
     def isEmpty(self):
         return self.buffer == []
 
     def enqueue(self, item):
-        self.buffer.insert(0, item)
 
+        self.buffer.insert(0,item)
+
+        self.buffer = list(chain.from_iterable(self.buffer)) #remove nested list
+        print("self.buffer", self.buffer)
     def dequeue(self):
-        self.buffer.pop()
+        return self.buffer.pop()
 
     def isoverflow(self):
         size = 0
@@ -78,28 +155,21 @@ class Queue:
 
         return size > self.capacity
 
-    #show the status of buffer
-    def show_status(self): 
-        for i in range(len(self.buffer)):
-            print(self.buffer[i])
 
-    #find the position of packet in the buffer
-    def show_packet_position(self, packet_id):
-        return self.buffer.index(packet_id)
 
-    #check the buffer, if the packet can't be sended, drop it 
-    #def if_drop_packet(self, packet_id, packet_TTL):
+
 
 
 def main():
-    """
+    '''
 	u1 = Queue(10)
-	p1 = Packet('nick')
+	p1 = Packet('1', 11, 'nick')
 	u1.enqueue(p1)
 	users_buffer = []
 	users_buffer.insert(0,u1)
 	print(u1.isoverflow())
-    """
+
+
     packet_1 = Packet("user8")
     packet_1.show_status()
     packet_1.decrease_TTL()
@@ -108,6 +178,14 @@ def main():
     packet_2.show_status()
     packet_2.decrease_TTL()
     packet_2.show_status()
+    '''
+
+
+    gen = Traffic_generator(3)
+    print(gen.generate())
+    gen.randSend()
+
+
 
 if __name__ == '__main__':
     main()
