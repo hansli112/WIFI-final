@@ -27,12 +27,13 @@ def loss_model(d, h_t, h_r):
 	fading = np.random.normal(0, 6) #np.random.normal(mean, sigma)
 
 	return pathloss + fading
-
 	'''
 	:param rx_power in (dB)
 		   interference_noise_p, thermal_noise_p (Watt)
 	:return: SINR in dB
 	'''
+
+
 def SINR(rx_power, interference_noise_p, thermal_noise_p):
     SINR_watt = dB2watt(rx_power) / (interference_noise_p + thermal_noise_p)
     SINR_dB = watt2dB(SINR_watt)
@@ -46,6 +47,8 @@ def ith_SINR(All_rx_power, index, thermal_noise_p):
 
 def channon_capacity(bandwidth, SINR):
     capacity = bandwidth * np.log2(1 + SINR)
+
+
     return capacity
 
 def rx_Power(PL,tx_power, tx_gain, rx_gain):

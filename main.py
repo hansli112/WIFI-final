@@ -1,9 +1,10 @@
 from cell import *
-import packet
 import matplotlib.pyplot as plt
 from matplotlib import path
 import numpy as np
 from traffic import *
+from channel import *
+from schedule import *
 
 #from channel import two_ray_model, ith_SINR, rx_Power, SIN
 def main():
@@ -38,7 +39,10 @@ def main():
 	rx_gain = UE_gain
 
 #-----print Topology-----------------------------------
-	central_cell = Cell([0, 0], radius)
+
+	#install DL buffer for cell
+	DL_buffer  = Buffer(20)
+	central_cell = Cell([0, 0],DL_buffer, radius)
 	tmp = central_cell.gen_cell()
 
 	plt.figure()
@@ -58,10 +62,61 @@ def main():
 	UEs_buffer = []
 
 
+
+	#simulation setup
+	simulation_T = 1000
+
+	print("@@thpt", central_cell.UEs_throughput(cell_bandwidth=10 * 10 ** 6, AllCells_pos=BS_pos))
+
+
+
+	#calculate pkt loss
+	gen = Traffic_generator(N_UE)
+
+	UEs_capacity = central_cell.UEs_throughput(cell_bandwidth=10 * 10 ** 3, AllCells_pos=BS_pos)  #(bit)
+
+    # do FIFO
+	b = central_cell.GetBuffer()
+
+	for t in range(10):  #simulation time = 3 sec
+		print("@@generate pkts at", t, gen.generate())
+		b.enqueue(gen.randSend())
+		print("b.buffer",b.buffer)
+
+		nextpkt = b[-1]
+
+		if nextpkt == None:  # In this round(sec), no pkt in buffer
+			continue
+
+		nextpkt_dest = b[-1].getToWhom()
+
+		while CanSend(b[-1] , UEs_capacity[nextpkt_dest]) and nextpkt != None:
+			b.dequeue()
+			nextpkt = b[-1]
+			if nextpkt == None:  # At this moment in some round, no remaining pkt pkts in buffer.
+				break
+
+			nextpkt_dest = b[-1].getToWhom()
+
+
+	print("viewbuffer", b.ViewBuffer())
+	print("getdrop_log",b.getDrop_log())
+
+
+	#record loss bits for each UE
+	loss_bits = {}
+	for ue in b.getDrop_log():
+		loss_bits[ue] = total_bits(b.getDrop_log()[ue])
+
+	print("loss_bits", loss_bits)
+
+
+	'''
 	for i  in range(len(UEs_pos)):
 		UEs_arr.append(UE(UEs_pos[i], 0, i, i))  #currently assume priority = ID
-		UEs_buffer.append(Queue(capacity))
+		UEs_buffer.append(Queue(buffer_size // N_UE))
 
+	'''
 
 
 

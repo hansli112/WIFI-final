@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from datetime import *
-from itertools import chain  #remove nested list
+
 
 class Packet:
     def __init__(self, ToWhom): #suppose default deadline is 3 sec
@@ -49,9 +49,12 @@ class Packet:
 
 
 
+
+
 def total_bits(packets):
+    #Return total bits of all pkts in a list
     '''
-    packets: (list) list of pkt objs.
+    packets: (list)    list of pkt objs.
     '''
     total_bits = 0
     for pkt in packets:
@@ -118,6 +121,18 @@ class Traffic_generator():
 
 
 
+#remove nested list
+def removeNestList(alist):
+    output = []
+    for i in alist:
+        if type(i) is list:
+            for j in i:
+                output.append(j)
+
+        else:
+            output.append(i)
+    return output
+
 
 class Buffer:
     def __init__(self, capacity):
@@ -141,10 +156,13 @@ class Buffer:
         return self.buffer == []
 
     def enqueue(self, item):
-
+        print("@@@@item", item)
         self.buffer.insert(0,item)
 
-        self.buffer = list(chain.from_iterable(self.buffer)) #remove nested list
+
+        print("$$$$$$debug", self.buffer)
+
+        self.buffer = removeNestList(self.buffer) #remove nested list
         print("self.buffer", self.buffer)
 
         if self.isoverflow():  #handle event of  buffer overflowing
