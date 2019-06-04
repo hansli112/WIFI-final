@@ -1,14 +1,24 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+#watt transfer to dB
+def watt2dB(power):
+    return 10 * np.log10(power)
 
-#path loss gain model(in dB)
+#dB transfer to watt
+def dB2watt(power_dB):
+    return 10**((power_dB)/10)
+
+#transfer dBm to dB
+def dBm2dB(power_dBm):
+    return power_dBm - 30
+
+#path loss gain model by two way ground model(in dB)
 def two_ray_model(d, h_t, h_r):
+    power = ((h_t*h_r) ** 2 ) / (d ** 4)
+    return watt2dB(power)
 
-	return 10 * np.log10(((h_t*h_r) ** 2) / d ** 4)
-
-
-
+#add fading to the two-way-ground model's pass loss
 def loss_model(d, h_t, h_r):
 	'''
 	All unit are dB!!
@@ -18,39 +28,25 @@ def loss_model(d, h_t, h_r):
 
 	return pathloss + fading
 
-
-
-
-
-def SINR(rx_power, interference_noise_p, thermal_noise_p):
 	'''
-
 	:param rx_power in (dB)
 		   interference_noise_p, thermal_noise_p (Watt)
-
 	:return: SINR in dB
 	'''
-	# 10 ** (rx_power / 10)把rx power換成Watt
-	SINR = 10 * np.log10(10 ** (rx_power / 10) / (interference_noise_p + thermal_noise_p))
-	return SINR
-
-
+def SINR(rx_power, interference_noise_p, thermal_noise_p):
+    SINR_watt = dB2watt(rx_power) / (interference_noise_p + thermal_noise_p)
+    SINR_dB = watt2dB(SINR_watt)
+    return SINR_dB
 
 
 def ith_SINR(All_rx_power, index, thermal_noise_p):
-	#divide All_rx_power into rx_power and interference
-	'''
-	:param thermal_noise_p: (Watt)
-	:param total_rx_power: (numpy array N*1) N is the number of measured power (dB)
-	:param index:  index of deisired rx_power except for interference
-	:return:
-	'''
-	interference_noise_p = (10 ** (All_rx_power/10)).sum() - 10 ** (All_rx_power[index]/10) #(Watt)
-	ith_SINR = SINR(All_rx_power[index], interference_noise_p, thermal_noise_p)
+    interference_noise_p = dB2watt(All_rx_power).sum() - dB2watt(All_rx_power[index])
+    ith_SINR = SINR(All_rx_power[index], interference_noise_p, thermal_noise_p)
+    return ith_SINR
 
-	return ith_SINR
-
-
+def channon_capacity(bandwidth, SINR):
+    capacity = bandwidth * np.log2(1 + SINR)
+    return capacity
 
 def rx_Power(PL,tx_power, tx_gain, rx_gain):
 	'''
@@ -86,7 +82,7 @@ def main():
 
 	temperature = 27 + 273.15   # degree Kelvin
 	thermal_noise_p = (1.38 * 10 ** (-23)) * temperature * 10 * (10 ** 6)
-	interference_noise_p = 0 (Watt)
+	interference_noise_p = 0 #Watt
 
 	SINR = 10 * np.log10(10 ** (rx_power / 10) / (interference_noise_p + thermal_noise_p))
 
