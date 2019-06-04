@@ -2,11 +2,19 @@
 # the input is the buffer(queue) that we want to send one of packet within
 # the return value is the index of packet to be sent, so you might need to sent the packet by yourself
 # the return value is -1 if the buffer is empty
-from traffic1 import *
+from traffic import *
 from datetime import *
 
 
 def CanSend(packet, budget):
+		'''
+		Ex:
+		(Assum at each moment, we could send any # of pkt as long as UEs' capacity allows)
+
+		if buffer=[P1,P1],first P1 size=1000(bit), second P1_size=500, UE1's capacity(initial budget)= 1300bit/s
+		So, at this moment(sec), after sending P1 to UE1, budget will become 1300-1000, and we can
+		find the size of second P1 > budget, so we could not send second P1 at this moment.
+		'''
 		if packet.getLength() <= budget:
 			return True
 
@@ -27,7 +35,7 @@ class Schedule:
 
 		while True:
 			for i in range(len(buf)):
-				if buf[i].priority == nextRR:
+				if buf[-1-i].priority == nextRR:
 					nextRR = (nextRR + 1) % numPriority
 					return i
 			nextRR = (nextRR + 1) % numPriority # try next possible index since no packet with current index in the buffer
@@ -63,22 +71,20 @@ def main():
 
 
 	gen = Traffic_generator(3)
-	UEs_capacity = np.array([1e5, 1e5, 1e5])
+	UEs_capacity = np.array([1e5, 1e5, 1e5])  #(bit)
 
     # do FIFO
+	b = Buffer(7)
 
-
-
-	b = Buffer(10)
-
-	for t in range(3):  #simulation time = 3 sec
+	for t in range(10):  #simulation time = 3 sec
 		print("@@generate pkts at", t, gen.generate())
 		b.enqueue(gen.randSend())
 		print("b.buffer",b.buffer)
+
 		nextpkt = b[-1]
 
 		if nextpkt == None:  # In this round(sec), no pkt in buffer
-			pass
+			continue
 
 		nextpkt_dest = b[-1].getToWhom()
 
@@ -90,7 +96,9 @@ def main():
 
 			nextpkt_dest = b[-1].getToWhom()
 
-	print(b.ViewBuffer())
+
+	print("viewbuffer", b.ViewBuffer())
+	print("getdrop_log",b.getDrop_log())
 
 
 

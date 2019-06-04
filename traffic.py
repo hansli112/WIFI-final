@@ -122,7 +122,11 @@ class Traffic_generator():
 class Buffer:
     def __init__(self, capacity):
         self.buffer = [] #store pkt which would contain random length data
-        self.capacity = capacity #total # of pkt which the Buffer can accommodate
+        self.capacity = capacity #total # of pkt objs which the Buffer can accommodate
+
+        self.drop_log = {}
+
+
 
     def ViewBuffer(self):
         return self.buffer
@@ -142,6 +146,10 @@ class Buffer:
 
         self.buffer = list(chain.from_iterable(self.buffer)) #remove nested list
         print("self.buffer", self.buffer)
+
+        if self.isoverflow():  #handle event of  buffer overflowing
+            self.drop()
+
     def dequeue(self):
         return self.buffer.pop()
 
@@ -151,9 +159,28 @@ class Buffer:
         for i in range(len(self.buffer)):
             print(self.buffer[i])
             print(type(self.buffer[i]))
-            size += self.buffer[i].size()
+            size += self.buffer[i].getLength()
 
         return size > self.capacity
+
+    def getCapacity(self):
+
+        return self.capacity
+
+    def drop(self):
+        drop = self.buffer[ : -1-self.capacity + 1]  #list of pkt objs
+
+        for pkt in drop:
+            if pkt.getToWhom() not in self.drop_log:
+
+                self.drop_log[pkt.getToWhom()] = []
+
+            self.drop_log[pkt.getToWhom()].append(pkt)
+
+    def getDrop_log(self):
+
+        return self.drop_log
+
 
 
 
