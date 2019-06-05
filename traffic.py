@@ -17,8 +17,7 @@ class Packet:
 
         self.time_stamp = time_stamp
 
-
-        self.priority = self.priority = self.set_priority_of_UE(ToWhom)
+        self.priority = self.set_priority_of_UE(ToWhom)
 
     def __str__(self):
         return "Packet(dest=" + str(self.ToWhom)  + ")"
