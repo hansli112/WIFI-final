@@ -112,7 +112,7 @@ class Cell:
 
 			UEs_SINR = 10**(UEs_SINR/10)
 			#print('2', UEs_SINR)
-			C = channon_capacity(UE_bandwidth, UEs_SINR) #ideal throughput for all UE
+			C = shannon_capacity(UE_bandwidth, UEs_SINR) #ideal throughput for all UE
 
 			return C  #type(C) is numpy array
 
