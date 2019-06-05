@@ -1,3 +1,8 @@
+"""
+This project calssify some function of communication model,
+like two_way_ground model, SINR, shannon capacity.You can use 
+belows function for building model
+"""
 import numpy as np
 from matplotlib import pyplot as plt
 

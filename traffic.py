@@ -9,7 +9,7 @@ class Packet:
         timestamp is the time when the packet is generated;
         '''
 
-        self.ToWhom = ToWhom
+        private self.ToWhom = ToWhom
 
         self.length = random.randint(64*8, 1518*8)
 

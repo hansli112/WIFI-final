@@ -1,10 +1,10 @@
 from cell import *
-import matplotlib.pyplot as plt
-from matplotlib import path
-import numpy as np
 from traffic import *
 from channel import *
 from schedule import *
+import matplotlib.pyplot as plt
+from matplotlib import path
+import numpy as np
 
 #from channel import two_ray_model, ith_SINR, rx_Power, SIN
 def main():
