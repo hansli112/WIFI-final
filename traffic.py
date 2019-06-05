@@ -17,9 +17,8 @@ class Packet:
 
         self.time_stamp = time_stamp
 
-        #priority = random.randint(0,7)
-        '''priority = ToWhom   #For the sake of simplicity'''
-        self.priority = random.randint(0, 5)
+
+        self.priority = self.priority = self.set_priority_of_UE(ToWhom)
 
     def __str__(self):
         return "Packet(dest=" + str(self.ToWhom)  + ")"
@@ -28,9 +27,10 @@ class Packet:
     def getDeadline(self):
         return self.deadline
 
-    #decrease the time to live of packet
-    def decrease_TTL(self):
-        self.deadline -= 1
+
+    def set_priority_of_UE(self, towhom):
+        part = 8
+	    self.priority = towhom / part
 
     def getToWhom(self):
 
@@ -41,6 +41,7 @@ class Packet:
 
     def getPriority(self):
         return self.priority
+
 
 
         #show the status of packet
