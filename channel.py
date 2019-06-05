@@ -19,21 +19,19 @@ def two_ray_model(d, h_t, h_r):
     return watt2dB(power)
 
 #add fading to the two-way-ground model's pass loss
+#pathloss ==> unit: dB
+#fading   ==> add some value in pdf(normal distribution)
 def loss_model(d, h_t, h_r):
-	'''
-	All unit are dB!!
-	'''
 	pathloss = two_ray_model(d, h_t, h_r)
 	fading = np.random.normal(0, 6) #np.random.normal(mean, sigma)
 
 	return pathloss + fading
-	'''
-	:param rx_power in (dB)
-		   interference_noise_p, thermal_noise_p (Watt)
-	:return: SINR in dB
-	'''
 
-
+#Calculate the SINR of UE
+#rx_power : signals                     unit: dB
+#interference_noise_p : interferences   unit: watt
+#thermal_noise_p : noise		unit: watt
+#SINR_dB : the SINR value               unit: dB
 def SINR(rx_power, interference_noise_p, thermal_noise_p):
     SINR_watt = dB2watt(rx_power) / (interference_noise_p + thermal_noise_p)
     SINR_dB = watt2dB(SINR_watt)
@@ -45,7 +43,8 @@ def ith_SINR(All_rx_power, index, thermal_noise_p):
     ith_SINR = SINR(All_rx_power[index], interference_noise_p, thermal_noise_p)
     return ith_SINR
 
-def channon_capacity(bandwidth, SINR):
+#Calculate the capacity between UE and BS by shannon capacity
+def shannon_capacity(bandwidth, SINR):
     capacity = bandwidth * np.log2(1 + SINR)
 
 
