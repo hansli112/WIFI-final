@@ -24,7 +24,6 @@ def two_ray_model(d, h_t, h_r):
 def loss_model(d, h_t, h_r):
 	pathloss = two_ray_model(d, h_t, h_r)
 	fading = np.random.normal(0, 6) #np.random.normal(mean, sigma)
-
 	return pathloss + fading
 
 #Calculate the SINR of UE
@@ -37,23 +36,30 @@ def SINR(rx_power, interference_noise_p, thermal_noise_p):
     SINR_dB = watt2dB(SINR_watt)
     return SINR_dB
 
-
+#Calculate the SINR by considering the other base stations' interference
+#All_rx_power : signals from all base stations  unit:dB
+#index : which UE
+#thermal_noise_p : noise                        unit: watt
 def ith_SINR(All_rx_power, index, thermal_noise_p):
     interference_noise_p = dB2watt(All_rx_power).sum() - dB2watt(All_rx_power[index])
     ith_SINR = SINR(All_rx_power[index], interference_noise_p, thermal_noise_p)
     return ith_SINR
 
 #Calculate the capacity between UE and BS by shannon capacity
+#bandwidth     unit: Hz
+#SINR          unit: dB
+#capacity      unit: bits/s
 def shannon_capacity(bandwidth, SINR):
     capacity = bandwidth * np.log2(1 + SINR)
-
-
     return capacity
 
+#Calculate the receive power
+#PL : path loss
+#tx_power : transmitter's power   unit: dB
+#tx_gain  : transmitted gain	  unit: dB
+#rx_gain  : received gain	  unit: dB
+#rx_power : received power	  unit: dB
 def rx_Power(PL,tx_power, tx_gain, rx_gain):
-	'''
-		[all unit are dB!!!]
-	'''
 	rx_power = PL + tx_power + tx_gain + rx_gain
 	return rx_power
 
