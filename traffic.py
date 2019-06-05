@@ -9,7 +9,7 @@ class Packet:
         timestamp is the time when the packet is generated;
         '''
 
-        private self.ToWhom = ToWhom
+        self.ToWhom = ToWhom
 
         self.length = random.randint(64*8, 1518*8)
 
@@ -17,41 +17,55 @@ class Packet:
 
         self.time_stamp = time_stamp
 
-        self.priority = self.set_priority_of_UE(ToWhom)
+
+        self.priority = self.priority = self.set_priority_of_UE(ToWhom)
 
     def __str__(self):
         return "Packet(dest=" + str(self.ToWhom)  + ")"
+
+
+    def getDeadline(self):
+        return self.deadline
 
 
     def set_priority_of_UE(self, towhom):
         part = 8
         self.priority = towhom / part
 
-    def RecordLatency(self, arrival_time):
-        latency = arrival_time - self.time_stamp
-        return latency
-
     def getToWhom(self):
+
         return self.ToWhom
 
     def	getLength(self):
         return self.length
 
-    def getDeadline(self):
-        return self.deadline
-
     def getPriority(self):
         return self.priority
 
-    def getTimestamp(self):
-        return self.time_stamp
 
-    #show the status of packet
+
+        #show the status of packet
     def show_status(self):
         print("Deadline", self.deadline)
         print("Length", self.length)
         print("Priority", self.priority)
         print("ToWhom", self.ToWhom)
+
+
+    def RecordLatency(self, arrival_time):
+        latency = arrival_time - self.time_stamp
+
+        return latency
+
+    def getTimestamp(self):
+        return self.time_stamp
+
+
+
+
+
+
+
 
 
 def total_bits(packets):
@@ -63,6 +77,9 @@ def total_bits(packets):
     for pkt in packets:
         total_bits += pkt.getLength()
     return total_bits
+
+
+
 
 
 class Traffic_generator():

@@ -6,7 +6,27 @@ from traffic import *
 from channel import *
 from schedule import *
 
-#from channel import two_ray_model, ith_SINR, rx_Power, SIN
+
+def whichUrgent(buffer, current_time):
+	#return (outputpkt) which pkt obj is the urgentest
+
+	if buffer.isEmpty():
+		return None
+
+	minExpire = current_time - buffer[-1].getTimestamp()
+	outputpkt = buffer[-1]
+
+	for pkt in buffer.ViewBuffer()[::-1]:#reverse list for good processing in ED
+
+		if (current_time - pkt.getTimestamp()) <  minExpire:
+			minExpire = current_time - pkt.getTimestamp()
+			output = pkt
+
+	return outputpkt
+
+#----------------------------------------------------------------------------------------------
+
+
 def main():
 	#setup
 	temperature = 27 + 273.15  # degree Kelvin
@@ -88,30 +108,22 @@ def main():
 
 		UEs_budget = UEs_capacity
 
-		print("At", t,"UEs_budget", UEs_budget)
-
-
-
+	
 		#generator generate pkt and send to BS
 		gen.generate(t)
 		b.enqueue(gen.randSend(), current_time=t)
 
 
-
-		if b.isEmpty():  # In this round(sec), no pkt in buffer
+		if b.isEmpty() :  # In this round(sec), no pkt in buffer
 			continue
 
-
 		#BS send pkt in buffer to UEs
-		nextpkt = b[-1]
-		print("At", t, "nextpkt", nextpkt)
+		nextpkt = whichUrgent(buffer=b, current_time=t)
+
+		nextpkt_dest = nextpkt.getToWhom()
 
 
-
-		nextpkt_dest = b[-1].getToWhom()
-
-
-		while CanSend(b[-1] , budget=UEs_budget[nextpkt_dest]):
+		while CanSend(nextpkt , budget=UEs_budget[nextpkt_dest]):
 			UEs_budget[nextpkt_dest] -= b[-1].getLength()
 
 			ltcy = (b.dequeue()).RecordLatency(t)  #Neglect propagation delay for the sake of simplicity
@@ -123,8 +135,8 @@ def main():
 			if b.isEmpty():  # At this moment in some round, no remaining pkt pkts in buffer.
 				break
 
-			nextpkt = b[-1]
-			nextpkt_dest = b[-1].getToWhom()
+			nextpkt = whichUrgent(buffer=b, current_time=t)
+			nextpkt_dest = nextpkt.getToWhom()
 
 
 
