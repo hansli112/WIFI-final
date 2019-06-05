@@ -12,9 +12,7 @@ class Packet:
 
         self.deadline = random.randint(100, 3600)
 
-        #priority = random.randint(0,7)
-        '''priority = ToWhom   #For the sake of simplicity'''
-        self.priority = random.randint(0, 5)
+        self.priority = self.set_priority_of_UE(ToWhom)
 
     def __str__(self):
         return "Packet(dest=" + str(self.ToWhom)  + ")"
@@ -26,6 +24,10 @@ class Packet:
     #decrease the time to live of packet
     def decrease_TTL(self):
         self.deadline -= 1
+
+    def set_priority_of_UE(self, towhom):
+        part = 8
+        self.priority = towhom / part
 
     def getToWhom(self):
 
