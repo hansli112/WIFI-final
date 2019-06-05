@@ -87,7 +87,7 @@ class Cell:
 			dist2central_BS = (dist2central_BS[:,0]**2 + dist2central_BS[:,1]**2)**0.5
 
 			#calculate rx power on each UE
-			PL = two_ray_model(dist2central_BS, Tx_h, Rx_h)
+			PL = loss_model(dist2central_BS, Tx_h, Rx_h) #include fading effect
 			rx_power = rx_Power(PL,Tx_power, Tx_gain, Rx_gain)
 
 			#print('-------------------------------------')
