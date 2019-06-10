@@ -80,16 +80,17 @@ def main():
 
 
 
-    # do FIFO
 	b = central_cell.GetBuffer()
 
+
+	#install scheduler
+	scheduler = Schedule()
 
 	for t in range(simulation_T):
 		UEs_capacity = central_cell.UEs_throughput(cell_bandwidth=10 * 10 ** 6, AllCells_pos=BS_pos)  #(bit)
 
 		UEs_budget = UEs_capacity
 
-		print("At", t,"UEs_budget", UEs_budget)
 
 
 
@@ -104,9 +105,7 @@ def main():
 
 
 		#BS send pkt in buffer to UEs
-		nextpkt = b[-1]
-		print("At", t, "nextpkt", nextpkt)
-
+		nextpkt = scheduler.FIFO(buf=b)
 
 
 		nextpkt_dest = b[-1].getToWhom()
@@ -124,7 +123,7 @@ def main():
 			if b.isEmpty():  # At this moment in some round, no remaining pkt pkts in buffer.
 				break
 
-			nextpkt = b[-1]
+			nextpkt = scheduler.FIFO(buf=b)
 			nextpkt_dest = b[-1].getToWhom()
 
 
@@ -133,14 +132,14 @@ def main():
 
 
 	#record some results for each UE-------------------------
-		for ue in b.getDrop_log():
-			loss_bits[ue] = total_bits(b.getDrop_log()[ue])
-			biterror_rate[ue] = loss_bits[ue] / gen.getLog()[ue]
-			latency[ue] = latency[ue] / gen.getLog()[ue]
+	for ue in b.getDrop_log():
+		loss_bits[ue] = total_bits(b.getDrop_log()[ue])
+		biterror_rate[ue] = loss_bits[ue] / gen.getLog()[ue]
+		latency[ue] = latency[ue] / gen.getLog()[ue]
 
-		print("loss_bits", loss_bits)
-		print("BER", biterror_rate)
-		print("latancy per bit", latency)
+	print("loss_bits", loss_bits)
+	print("BER", biterror_rate)
+	print("latancy per bit", latency)
 
 
 

@@ -30,7 +30,9 @@ class Schedule:
 	def FIFO (self, buf):
 		if buf.isEmpty():
 			return -1
-		return (len(buf) - 1)
+
+
+		return buf[-1]
 
 
 	def RR (self, buf, numPriority): # please input the buf and how many priority levels we have
@@ -48,30 +50,37 @@ class Schedule:
 
 
 
-	def EDF (self, buf):
-		if buf.Empty():
-			return -1
+	def EDF (self, buf, current_time):
+		#return (outputpkt) which pkt obj is the urgentest
 
-		now = datetime.now()
-		index = 0
-		minExpire = buf[index].deadline - now # it should be a timedelta object
-		for i in range(1, len(buf)): # looking for the packet with earlist deadline
-			if buf[i].deadline - now < minExpire:
-				minExpire = buf[i].deadline - now # it should be a timedelta object
-				index = i
-		return index
+		if buf.isEmpty():
+			return None
+
+		minExpire = current_time - buf[-1].getTimestamp()
+		outputpkt = buf[-1]
+
+		for pkt in buf.ViewBuffer()[::-1]:#reverse list for good processing in ED
+
+			if (current_time - pkt.getTimestamp()) <  minExpire:
+				minExpire = current_time - pkt.getTimestamp()
+				output = pkt
+
+		return outputpkt
+
+
 
 	def SJF (self, buf):
-		if buf.Empty():
+		if buf.isEmpty():
 			return -1
 
 		index = 0
-		minLength = buf[index].length
-		for i in range(1, len(buf)): # looking for the job with shortest length
-			if buf[i].length < minLength:
-				minLength = buf[i].length
+		minLength = buf[index].getLength()
+		for i in range(len(buf)): # looking for the job with shortest length
+			if buf[-1-i].length < minLength:
+				minLength = buf[i].getLength()
 				index = i
-		return index
+
+		return buf[index]
 
 
 

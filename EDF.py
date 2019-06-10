@@ -7,22 +7,6 @@ from channel import *
 from schedule import *
 
 
-def whichUrgent(buffer, current_time):
-	#return (outputpkt) which pkt obj is the urgentest
-
-	if buffer.isEmpty():
-		return None
-
-	minExpire = current_time - buffer[-1].getTimestamp()
-	outputpkt = buffer[-1]
-
-	for pkt in buffer.ViewBuffer()[::-1]:#reverse list for good processing in ED
-
-		if (current_time - pkt.getTimestamp()) <  minExpire:
-			minExpire = current_time - pkt.getTimestamp()
-			output = pkt
-
-	return outputpkt
 
 #----------------------------------------------------------------------------------------------
 
@@ -100,9 +84,11 @@ def main():
 
 
 
-    # do FIFO
+
 	b = central_cell.GetBuffer()
 
+	#install scheduler
+	scheduler = Schedule()
 
 	for t in range(simulation_T):
 		UEs_capacity = central_cell.UEs_throughput(cell_bandwidth=10 * 10 ** 6, AllCells_pos=BS_pos)  #(bit)
@@ -119,7 +105,7 @@ def main():
 			continue
 
 		#BS send pkt in buffer to UEs
-		nextpkt = whichUrgent(buffer=b, current_time=t)
+		nextpkt = scheduler.EDF(buf=b, current_time=t)
 
 		nextpkt_dest = nextpkt.getToWhom()
 
@@ -136,7 +122,7 @@ def main():
 			if b.isEmpty():  # At this moment in some round, no remaining pkt pkts in buffer.
 				break
 
-			nextpkt = whichUrgent(buffer=b, current_time=t)
+			nextpkt = scheduler.EDF(buf=b, current_time=t)
 			nextpkt_dest = nextpkt.getToWhom()
 
 

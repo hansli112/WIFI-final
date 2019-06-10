@@ -2,6 +2,34 @@ import random
 import numpy as np
 from datetime import *
 
+#remove nested list-------------------------------------
+def removeNestList(alist):
+    output = []
+    for i in alist:
+        if type(i) is list:
+            for j in i:
+                output.append(j)
+
+        else:
+            output.append(i)
+    return output
+#--------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------
+def total_bits(packets):
+    #Return total bits of all pkts in a list
+    '''
+    packets: (list)    list of pkt objs.
+    '''
+    total_bits = 0
+    for pkt in packets:
+        total_bits += pkt.getLength()
+    return total_bits
+
+
+
+#--------------------------------------------------------------------------
+
 
 class Packet:
     def __init__(self, ToWhom, time_stamp): #suppose default deadline is 3 sec
@@ -28,7 +56,6 @@ class Packet:
 
 
 
-
     def getToWhom(self):
 
         return self.ToWhom
@@ -38,7 +65,6 @@ class Packet:
 
     def getPriority(self):
         return self.priority
-
 
 
         #show the status of packet
@@ -65,15 +91,7 @@ class Packet:
 
 
 
-def total_bits(packets):
-    #Return total bits of all pkts in a list
-    '''
-    packets: (list)    list of pkt objs.
-    '''
-    total_bits = 0
-    for pkt in packets:
-        total_bits += pkt.getLength()
-    return total_bits
+
 
 
 
@@ -136,18 +154,6 @@ class Traffic_generator():
     def getLog(self):
         return self.log  #type(self.log) is list
 
-
-#remove nested list
-def removeNestList(alist):
-    output = []
-    for i in alist:
-        if type(i) is list:
-            for j in i:
-                output.append(j)
-
-        else:
-            output.append(i)
-    return output
 
 
 class Buffer:

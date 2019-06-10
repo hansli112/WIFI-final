@@ -83,7 +83,7 @@ def main():
 
 
 
-
+    # do FIFO
 	b = central_cell.GetBuffer()
 
 	#install scheduler
@@ -105,7 +105,7 @@ def main():
 			continue
 
 		#BS send pkt in buffer to UEs
-		nextpkt = scheduler.RR(b, numPriority=8)
+		nextpkt = scheduler.SJF(b)
 
 		nextpkt_dest = nextpkt.getToWhom()
 
@@ -122,7 +122,7 @@ def main():
 			if b.isEmpty():  # At this moment in some round, no remaining pkt pkts in buffer.
 				break
 
-			nextpkt = scheduler.RR(b, numPriority=8)
+			nextpkt = scheduler.SJF(b)
 			nextpkt_dest = nextpkt.getToWhom()
 
 
