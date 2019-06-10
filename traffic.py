@@ -17,8 +17,7 @@ class Packet:
 
         self.time_stamp = time_stamp
 
-
-        self.priority = self.set_priority_of_UE(ToWhom)
+        self.priority = ToWhom % 8   #0~7
 
     def __str__(self):
         return "Packet(dest=" + str(self.ToWhom)  + ")"
@@ -28,9 +27,7 @@ class Packet:
         return self.deadline
 
 
-    def set_priority_of_UE(self, towhom):
-        part = 8
-        self.priority = towhom / part
+
 
     def getToWhom(self):
 
@@ -162,14 +159,19 @@ class Buffer:
 
 
 
-    def ViewBuffer(self):
-        return self.buffer
-
     def __getitem__(self, index):
             if index >= len(self.buffer) or len(self.buffer) == 0:
                 return None
 
             return self.buffer[index]
+
+    def __len__(self):
+        return len(self.buffer)
+
+    def ViewBuffer(self):
+        return self.buffer
+
+
 
     def isEmpty(self):
         return self.buffer == []
@@ -190,8 +192,12 @@ class Buffer:
 
 
 
-    def dequeue(self):
-        return self.buffer.pop()
+    def dequeue(self, pkt): #"pkt" argument is optional argument
+
+        self.buffer.remove(pkt)
+        return pkt
+
+
 
     def isoverflow(self):
         size = 0

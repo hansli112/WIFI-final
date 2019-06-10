@@ -20,27 +20,35 @@ def CanSend(packet, budget):
 
 		return False
 
-class Schedule:
-	nextRR = 0 # the next sending index of priority in round-robin
 
-	def FIFO (buf):
+
+class Schedule:
+
+	def __init__(self):
+		self.nextRR = 0 # the next sending index of priority in round-robin
+
+	def FIFO (self, buf):
 		if buf.isEmpty():
 			return -1
 		return (len(buf) - 1)
 
 
-	def RR (buf, numPriority): # please input the buf and how many priority levels we have
+	def RR (self, buf, numPriority): # please input the buf and how many priority levels we have
 		if buf.isEmpty():
 			return -1
 
 		while True:
 			for i in range(len(buf)):
-				if buf[-1-i].priority == nextRR:
-					nextRR = (nextRR + 1) % numPriority
-					return i
-			nextRR = (nextRR + 1) % numPriority # try next possible index since no packet with current index in the buffer
+				if buf[-1-i].getPriority() == self.nextRR:
+					self.nextRR = (self.nextRR + 1) % numPriority
 
-	def EDF (buf):
+					return buf[i]   #return next sending pkt
+				else:
+					self.nextRR = (self.nextRR + 1) % numPriority # try next possible index since no packet with current index in the buffer
+
+
+
+	def EDF (self, buf):
 		if buf.Empty():
 			return -1
 
@@ -53,7 +61,7 @@ class Schedule:
 				index = i
 		return index
 
-	def SJF (buf):
+	def SJF (self, buf):
 		if buf.Empty():
 			return -1
 
@@ -71,7 +79,7 @@ def main():
 
 
 	gen = Traffic_generator(3)
-	UEs_capacity = np.array([1e5, 1e5, 1e5])  #(bit)
+	UEs_capacity = np.array([1e5, 1e5, 1e5])  #()
 
     # do FIFO
 	b = Buffer(7)

@@ -86,12 +86,13 @@ def main():
 	#simulation setup-------------------------------------------
 	simulation_T = 100
 	loss_bits = {}   #record loss bits for each UE
-
+	biterror_rate = {}
 	latency = {}	#record latency(total latency for all pkt) for each UE
-	#initial latency dict
+	#initial latency, BER dict
 	for ue_id in range(N_UE):
 		latency[ue_id] = 0
-
+		biterror_rate[ue_id] = 0
+		loss_bits[ue_id] = 0
 
 
 	#-calculate pkt loss and latancy for each UEs------------------------------
@@ -108,7 +109,7 @@ def main():
 
 		UEs_budget = UEs_capacity
 
-	
+
 		#generator generate pkt and send to BS
 		gen.generate(t)
 		b.enqueue(gen.randSend(), current_time=t)
@@ -124,9 +125,9 @@ def main():
 
 
 		while CanSend(nextpkt , budget=UEs_budget[nextpkt_dest]):
-			UEs_budget[nextpkt_dest] -= b[-1].getLength()
+			UEs_budget[nextpkt_dest] -= nextpkt.getLength()
 
-			ltcy = (b.dequeue()).RecordLatency(t)  #Neglect propagation delay for the sake of simplicity
+			ltcy = b.dequeue(pkt=nextpkt).RecordLatency(t)  #Neglect propagation delay for the sake of simplicity
 
 			#record latency for all sent pkts
 			latency[nextpkt_dest] += ltcy
@@ -143,19 +144,14 @@ def main():
 
 
 
-	#record loss bits for each UE-------------------------
-
+#record some results for each UE-------------------------
 	for ue in b.getDrop_log():
 		loss_bits[ue] = total_bits(b.getDrop_log()[ue])
+		biterror_rate[ue] = loss_bits[ue] / gen.getLog()[ue]
+		latency[ue] = latency[ue] / gen.getLog()[ue]
 
 	print("loss_bits", loss_bits)
-
-
-	print('latency', latency)
-
-
-	for i in range(N_UE):
-		latency[i] = latency[i] / gen.getLog()[i]
+	print("BER", biterror_rate)
 	print("latancy per bit", latency)
 
 

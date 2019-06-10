@@ -6,7 +6,10 @@ from traffic import *
 from channel import *
 from schedule import *
 
-#from channel import two_ray_model, ith_SINR, rx_Power, SIN
+
+#----------------------------------------------------------------------------------------------
+
+
 def main():
 	#setup
 	temperature = 27 + 273.15  # degree Kelvin
@@ -83,14 +86,14 @@ def main():
     # do FIFO
 	b = central_cell.GetBuffer()
 
+	#install scheduler
+	scheduler = Schedule()
+
 
 	for t in range(simulation_T):
 		UEs_capacity = central_cell.UEs_throughput(cell_bandwidth=10 * 10 ** 6, AllCells_pos=BS_pos)  #(bit)
 
 		UEs_budget = UEs_capacity
-
-		print("At", t,"UEs_budget", UEs_budget)
-
 
 
 		#generator generate pkt and send to BS
@@ -98,22 +101,17 @@ def main():
 		b.enqueue(gen.randSend(), current_time=t)
 
 
-
-		if b.isEmpty():  # In this round(sec), no pkt in buffer
+		if b.isEmpty() :  # In this round(sec), no pkt in buffer
 			continue
 
-
 		#BS send pkt in buffer to UEs
-		nextpkt = b[-1]
-		print("At", t, "nextpkt", nextpkt)
+		nextpkt = scheduler.RR(b, numPriority=8)
+
+		nextpkt_dest = nextpkt.getToWhom()
 
 
-
-		nextpkt_dest = b[-1].getToWhom()
-
-
-		while CanSend(b[-1] , budget=UEs_budget[nextpkt_dest]):
-			UEs_budget[nextpkt_dest] -= b[-1].getLength()
+		while CanSend(nextpkt , budget=UEs_budget[nextpkt_dest]):
+			UEs_budget[nextpkt_dest] -= nextpkt.getLength()
 
 			ltcy = (b.dequeue(pkt=nextpkt)).RecordLatency(t)  #Neglect propagation delay for the sake of simplicity
 
@@ -124,23 +122,21 @@ def main():
 			if b.isEmpty():  # At this moment in some round, no remaining pkt pkts in buffer.
 				break
 
-			nextpkt = b[-1]
-			nextpkt_dest = b[-1].getToWhom()
-
-
+			nextpkt = scheduler.RR(b, numPriority=8)
+			nextpkt_dest = nextpkt.getToWhom()
 
 
 
 
 	#record some results for each UE-------------------------
-		for ue in b.getDrop_log():
-			loss_bits[ue] = total_bits(b.getDrop_log()[ue])
-			biterror_rate[ue] = loss_bits[ue] / gen.getLog()[ue]
-			latency[ue] = latency[ue] / gen.getLog()[ue]
+	for ue in b.getDrop_log():
+		loss_bits[ue] = total_bits(b.getDrop_log()[ue])
+		biterror_rate[ue] = loss_bits[ue] / gen.getLog()[ue]
+		latency[ue] = latency[ue] / gen.getLog()[ue]
 
-		print("loss_bits", loss_bits)
-		print("BER", biterror_rate)
-		print("latancy per bit", latency)
+	print("loss_bits", loss_bits)
+	print("BER", biterror_rate)
+	print("latancy per bit", latency)
 
 
 
