@@ -21,7 +21,7 @@ def main():
 	h_UE = 1.5
 	BS_gain = 14
 	UE_gain = 14
-	N_UE = 10   #There are N_UE uniformly distributed in each cell
+	N_UE = 8   #There are N_UE uniformly distributed in each cell
 	ISD = 500   #inter-site distance
 	radius = 500 / 3**0.5
 
@@ -136,9 +136,14 @@ def main():
 		biterror_rate[ue] = loss_bits[ue] / gen.getLog()[ue]
 		latency[ue] = latency[ue] / gen.getLog()[ue]
 
-	print("loss_bits", loss_bits)
-	print("BER", biterror_rate)
-	print("latancy per bit", latency)
+
+
+	print("loss_bits", loss_bits, "\n")
+	print("BER", biterror_rate, "\n")
+	print("latancy per bit", latency, "\n")
+
+	UEs_avgC = central_cell.UEs_avgC(simulation_time=simulation_T)
+	print("UEs_avgC", UEs_avgC, "\n")
 
 
 

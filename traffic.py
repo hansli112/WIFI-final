@@ -31,6 +31,11 @@ def total_bits(packets):
 #--------------------------------------------------------------------------
 
 
+
+
+
+
+
 class Packet:
     def __init__(self, ToWhom, time_stamp): #suppose default deadline is 3 sec
         '''
@@ -38,14 +43,14 @@ class Packet:
         '''
 
         self.ToWhom = ToWhom
-
-        self.length = random.randint(64*8, 1518*8)
+        self.priority = ToWhom % 8   #0~7
+        self.length = random.randint(64*(self.priority+1)*8, 1518*(self.priority+2)*8)
 
         self.deadline = random.randint(300, 3600)
 
         self.time_stamp = time_stamp
 
-        self.priority = ToWhom % 8   #0~7
+
 
     def __str__(self):
         return "Packet(dest=" + str(self.ToWhom)  + ")"

@@ -7,7 +7,12 @@ from channel import *
 from schedule import *
 
 #from channel import two_ray_model, ith_SINR, rx_Power, SIN
-def main():
+
+
+def Simulator(algorithm):
+	'''
+	algorithm: specify which scheduling method.
+	'''
 	#setup
 	temperature = 27 + 273.15  # degree Kelvin
 	thermal_noise_p = (1.38 * 10 ** (-23)) * temperature * 10 * (10 ** 6)
@@ -106,14 +111,29 @@ def main():
 
 
 		#BS send pkt in buffer to UEs
-		nextpkt = scheduler.FIFO(buf=b)
+
+		methods = [scheduler.FIFO, scheduler.EDF, scheduler.SJF, scheduler.multi_queue, scheduler.RR]
+
+		if algorithm == 'RR':
+			arg = 8  		#argument is numPriority
+		elif algorithm == 'EDF':
+			arg = t 		#argument is current_time
+		else:
+			arg = None
+
+		for m in methods:
+			if algorithm == m.__name__:
+				schedule = m
+
+		nextpkt = schedule(b, arg)
 
 
-		nextpkt_dest = b[-1].getToWhom()
+
+		nextpkt_dest = nextpkt.getToWhom()
 
 
-		while CanSend(b[-1] , budget=UEs_budget[nextpkt_dest]):
-			UEs_budget[nextpkt_dest] -= b[-1].getLength()
+		while CanSend(nextpkt , budget=UEs_budget[nextpkt_dest]):
+			UEs_budget[nextpkt_dest] -= nextpkt.getLength()
 
 			ltcy = (b.dequeue(pkt=nextpkt)).RecordLatency(t)  #Neglect propagation delay for the sake of simplicity
 
@@ -124,8 +144,8 @@ def main():
 			if b.isEmpty():  # At this moment in some round, no remaining pkt pkts in buffer.
 				break
 
-			nextpkt = scheduler.FIFO(buf=b)
-			nextpkt_dest = b[-1].getToWhom()
+			nextpkt = schedule(b, arg)
+			nextpkt_dest = nextpkt.getToWhom()
 
 
 
@@ -138,12 +158,37 @@ def main():
 		biterror_rate[ue] = loss_bits[ue] / gen.getLog()[ue]
 		latency[ue] = latency[ue] / gen.getLog()[ue]
 
-	print("loss_bits", loss_bits)
-	print("BER", biterror_rate)
-	print("latancy per bit", latency)
+	print("----------------statistics----------------")
+	print('@@scheduling method is ' +  '[' + algorithm + ']' + '\n')
+	print("loss_bits", loss_bits, "\n")
+	print("BER", biterror_rate, "\n")
+	print("latancy per bit", latency, "\n")
 
 	UEs_avgC = central_cell.UEs_avgC(simulation_time=simulation_T)
 	print("UEs_avgC", UEs_avgC, "\n")
+
+
+
+
+def main():
+
+	Simulator("FIFO")
+
+
+	Simulator("RR")
+
+
+	Simulator("EDF")
+
+
+	Simulator("SJF")
+
+	Simulator("multi_queue")
+
+
+
+
+
 
 
 

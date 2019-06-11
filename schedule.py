@@ -21,18 +21,20 @@ def CanSend(packet, budget):
 class Schedule:
 	def __init__(self):
 		self.nextRR = 0 # the next sending index of priority in round-robin
-		
+
 		self.numPriority = 8 # set the number of quantums
 		self.quantum = (1, 2, 3, 4, 5, 6, 7, 8) # set the quantum of each queue manually
 		self.nextMultiLevel = 0
 		self.nextProcessed = 0 # the next processed task of current priority
 
-	def FIFO (self, buf):
+	def FIFO (self, buf, *arg):
 		if buf.isEmpty():
 			return -1
 		return buf[-1]
 
-	def RR (self, buf, numPriority): # please input the buf and how many priority levels we have
+	def RR (self, buf, *numPriority): # please input the buf and how many priority levels we have
+		numPriority =  numPriority[0]		#handle tuple input type in *numPriority
+
 		if buf.isEmpty():
 			return -1
 
@@ -40,12 +42,17 @@ class Schedule:
 			for i in range(len(buf)):
 				if buf[-1-i].getPriority() == self.nextRR:
 					self.nextRR = (self.nextRR + 1) % numPriority
-					return buf[i]   #return next sending pkt
+					return buf[-1-i]   #return next sending pkt
 				else:
-					self.nextRR = (self.nextRR + 1) % numPriority # try next possible index since no packet with current index in the buffer
+					self.nextRR = (self.nextRR + 1) % numPriority# try next possible index since no packet with current index in the buffer
 
-	def EDF (self, buf, current_time):
+	def EDF (self, buf, *current_time):
 		#return (outputpkt) which pkt obj is the urgentest
+
+
+		current_time =  current_time[0]			#handle tuple input type in *current_time
+
+
 		if buf.isEmpty():
 			return None
 
@@ -58,7 +65,7 @@ class Schedule:
 				output = pkt
 		return outputpkt
 
-	def SJF (self, buf):
+	def SJF (self, buf, *arg):
 		if buf.isEmpty():
 			return -1
 
@@ -67,30 +74,37 @@ class Schedule:
 
 		for i in range(len(buf)): # looking for the job with shortest length
 			if buf[-1-i].length < minLength:
-				minLength = buf[i].getLength()
+				minLength = buf[-1-i].getLength()
 				index = i
-		return buf[index]
+		return buf[-1-index]
 
-	def multi_queue(self, buf):
+	def multi_queue(self, buf, *arg):
 		if buf.isEmpty():
 			return -1
 
-		for i in range(numPriority):
+		for i in range(self.numPriority):
 			for j in range(len(buf)):
-				if buf[j].priority == self.nextMultiLevel:
+				if buf[-1-j].priority == self.nextMultiLevel:
 					if self.nextProcessed < self.quantum[self.nextMultiLevel]:
 						self.nextProcessed += 1
 					else:
 						self.nextMultiLevel = (self.nextMultiLevel + 1) % self.numPriority
 						self.nextProcessed = 0
-					return buf[j]
+					return buf[-1-j]
 			# if there is no any packet with current priority, looking for next priority
 			self.nextMultiLevel = (self.nextMultiLevel + 1) % self.numPriority
 			self.nextProcessed = 0
 
+
+
+
+
+
+
+
 def main():
 
-
+	'''
 	gen = Traffic_generator(3)
 	UEs_capacity = np.array([1e5, 1e5, 1e5])  #()
 
@@ -98,7 +112,7 @@ def main():
 	b = Buffer(7)
 
 	for t in range(10):  #simulation time = 3 sec
-		print("@@generate pkts at", t, gen.generate())
+		print("@@generate pkts at", t, gen.generate(t))
 		b.enqueue(gen.randSend())
 		print("b.buffer",b.buffer)
 
@@ -121,7 +135,7 @@ def main():
 	print("viewbuffer", b.ViewBuffer())
 	print("getdrop_log",b.getDrop_log())
 
-
+	'''
 
 
 

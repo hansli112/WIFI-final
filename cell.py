@@ -15,6 +15,8 @@ class Cell:
 		self.ID = ID
 
 
+
+
 	def gen_cell(self):
 		#Really generate cell
 		'''
@@ -40,6 +42,9 @@ class Cell:
 		counter = 1
 		self.N_UE = N_UE
 		self.UEs_pos = []
+		self.UEs_totalC = np.array([0.0]*N_UE) #for calculating the average capacity in simulation
+
+
 
 		tmp = np.transpose(np.array([xv, yv]))
 
@@ -114,11 +119,22 @@ class Cell:
 			#print('2', UEs_SINR)
 			C = shannon_capacity(UE_bandwidth, UEs_SINR) #ideal throughput for all UE
 
+			self.UEs_totalC += C
+
 			return C  #type(C) is numpy array
+
+	def UEs_avgC(self, simulation_time):
+		self.UEs_totalC /= simulation_time
+
+		return self.UEs_totalC
 
 
 	def GetBuffer(self):
 		return self.BS_buffer
+
+
+
+
 
 
 class UE:

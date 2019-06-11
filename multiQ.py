@@ -6,7 +6,10 @@ from traffic import *
 from channel import *
 from schedule import *
 
-#from channel import two_ray_model, ith_SINR, rx_Power, SIN
+
+#----------------------------------------------------------------------------------------------
+
+
 def main():
 	#setup
 	temperature = 27 + 273.15  # degree Kelvin
@@ -17,7 +20,7 @@ def main():
 	h_UE = 1.5
 	BS_gain = 14
 	UE_gain = 14
-	N_UE = 10   #There are N_UE uniformly distributed in each cell
+	N_UE = 8   #There are N_UE uniformly distributed in each cell
 	ISD = 500   #inter-site distance
 	radius = 500 / 3**0.5
 
@@ -64,7 +67,6 @@ def main():
 
 
 	#simulation setup-------------------------------------------
-
 	simulation_T = 100
 	loss_bits = {}   #record loss bits for each UE
 	biterror_rate = {}
@@ -81,11 +83,12 @@ def main():
 
 
 
+    # do FIFO
 	b = central_cell.GetBuffer()
-
 
 	#install scheduler
 	scheduler = Schedule()
+
 
 	for t in range(simulation_T):
 		UEs_capacity = central_cell.UEs_throughput(cell_bandwidth=10 * 10 ** 6, AllCells_pos=BS_pos)  #(bit)
@@ -93,27 +96,22 @@ def main():
 		UEs_budget = UEs_capacity
 
 
-
-
 		#generator generate pkt and send to BS
 		gen.generate(t)
 		b.enqueue(gen.randSend(), current_time=t)
 
 
-
-		if b.isEmpty():  # In this round(sec), no pkt in buffer
+		if b.isEmpty() :  # In this round(sec), no pkt in buffer
 			continue
 
-
 		#BS send pkt in buffer to UEs
-		nextpkt = scheduler.FIFO(buf=b)
+		nextpkt = scheduler.multi_queue(b)
+
+		nextpkt_dest = nextpkt.getToWhom()
 
 
-		nextpkt_dest = b[-1].getToWhom()
-
-
-		while CanSend(b[-1] , budget=UEs_budget[nextpkt_dest]):
-			UEs_budget[nextpkt_dest] -= b[-1].getLength()
+		while CanSend(nextpkt , budget=UEs_budget[nextpkt_dest]):
+			UEs_budget[nextpkt_dest] -= nextpkt.getLength()
 
 			ltcy = (b.dequeue(pkt=nextpkt)).RecordLatency(t)  #Neglect propagation delay for the sake of simplicity
 
@@ -124,10 +122,8 @@ def main():
 			if b.isEmpty():  # At this moment in some round, no remaining pkt pkts in buffer.
 				break
 
-			nextpkt = scheduler.FIFO(buf=b)
-			nextpkt_dest = b[-1].getToWhom()
-
-
+			nextpkt = scheduler.multi_queue(b)
+			nextpkt_dest = nextpkt.getToWhom()
 
 
 
@@ -138,12 +134,13 @@ def main():
 		biterror_rate[ue] = loss_bits[ue] / gen.getLog()[ue]
 		latency[ue] = latency[ue] / gen.getLog()[ue]
 
-	print("loss_bits", loss_bits)
-	print("BER", biterror_rate)
-	print("latancy per bit", latency)
+	print("loss_bits", loss_bits, "\n")
 
-	UEs_avgC = central_cell.UEs_avgC(simulation_time=simulation_T)
-	print("UEs_avgC", UEs_avgC, "\n")
+	print("BER", biterror_rate, "\n")
+	print("latancy per bit", latency, "\n")
+
+
+
 
 
 
