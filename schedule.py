@@ -5,7 +5,6 @@
 from traffic import *
 from datetime import *
 
-
 def CanSend(packet, budget):
 		'''
 		Ex:
@@ -17,23 +16,21 @@ def CanSend(packet, budget):
 		'''
 		if packet.getLength() <= budget:
 			return True
-
 		return False
 
-
-
 class Schedule:
-
 	def __init__(self):
 		self.nextRR = 0 # the next sending index of priority in round-robin
+		
+		self.numPriority = 8 # set the number of quantums
+		self.quantum = (1, 2, 3, 4, 5, 6, 7, 8) # set the quantum of each queue manually
+		self.nextMultiLevel = 0
+		self.nextProcessed = 0 # the next processed task of current priority
 
 	def FIFO (self, buf):
 		if buf.isEmpty():
 			return -1
-
-
 		return buf[-1]
-
 
 	def RR (self, buf, numPriority): # please input the buf and how many priority levels we have
 		if buf.isEmpty():
@@ -43,16 +40,12 @@ class Schedule:
 			for i in range(len(buf)):
 				if buf[-1-i].getPriority() == self.nextRR:
 					self.nextRR = (self.nextRR + 1) % numPriority
-
 					return buf[i]   #return next sending pkt
 				else:
 					self.nextRR = (self.nextRR + 1) % numPriority # try next possible index since no packet with current index in the buffer
 
-
-
 	def EDF (self, buf, current_time):
 		#return (outputpkt) which pkt obj is the urgentest
-
 		if buf.isEmpty():
 			return None
 
@@ -60,14 +53,10 @@ class Schedule:
 		outputpkt = buf[-1]
 
 		for pkt in buf.ViewBuffer()[::-1]:#reverse list for good processing in ED
-
 			if (current_time - pkt.getTimestamp()) <  minExpire:
 				minExpire = current_time - pkt.getTimestamp()
 				output = pkt
-
 		return outputpkt
-
-
 
 	def SJF (self, buf):
 		if buf.isEmpty():
@@ -75,14 +64,29 @@ class Schedule:
 
 		index = 0
 		minLength = buf[index].getLength()
+
 		for i in range(len(buf)): # looking for the job with shortest length
 			if buf[-1-i].length < minLength:
 				minLength = buf[i].getLength()
 				index = i
-
 		return buf[index]
 
+	def multi_queue(self, buf):
+		if buf.isEmpty():
+			return -1
 
+		for i in range(numPriority):
+			for j in range(len(buf)):
+				if buf[j].priority == self.nextMultiLevel:
+					if self.nextProcessed < self.quantum[self.nextMultiLevel]:
+						self.nextProcessed += 1
+					else:
+						self.nextMultiLevel = (self.nextMultiLevel + 1) % self.numPriority
+						self.nextProcessed = 0
+					return buf[j]
+			# if there is no any packet with current priority, looking for next priority
+			self.nextMultiLevel = (self.nextMultiLevel + 1) % self.numPriority
+			self.nextProcessed = 0
 
 def main():
 
