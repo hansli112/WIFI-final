@@ -43,13 +43,13 @@ def Simulator(algorithm):
 	tx_gain = BS_gain
 	rx_gain = UE_gain
 
+
 #-----print Topology-----------------------------------
 
 	#install DL buffer for cell
 	DL_buffer  = Buffer(2000)
 	central_cell = Cell([0, 0],DL_buffer, radius)
 	tmp = central_cell.gen_cell()
-
 	plt.figure()
 	plt.title("1-1 Topology")
 	plt.xlabel('x axis(m)')
@@ -62,7 +62,7 @@ def Simulator(algorithm):
 	# create UEs and at the same time create buffers for each UE-------------
 	UEs_pos = central_cell.gen_UEs(tmp[0], tmp[1], N_UE)
 	plt.plot(UEs_pos[:, 0], UEs_pos[:, 1], "b*")
-	plt.show()
+	#plt.show()
 	UEs_arr = []
 	UEs_buffer = []
 
@@ -155,8 +155,8 @@ def Simulator(algorithm):
 	#record some results for each UE-------------------------
 	for ue in b.getDrop_log():
 		loss_bits[ue] = total_bits(b.getDrop_log()[ue])
-		biterror_rate[ue] = loss_bits[ue] / gen.getLog()[ue]
-		latency[ue] = latency[ue] / gen.getLog()[ue]
+		biterror_rate[ue] = np.true_divide(loss_bits[ue], gen.getLog()[ue])
+		latency[ue] = np.true_divide(latency[ue], gen.getLog()[ue])
 
 	print("----------------statistics----------------")
 	print('@@scheduling method is ' +  '[' + algorithm + ']' + '\n')

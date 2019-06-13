@@ -43,8 +43,8 @@ class Schedule:
 				if buf[-1-i].getPriority() == self.nextRR:
 					self.nextRR = (self.nextRR + 1) % numPriority
 					return buf[-1-i]   #return next sending pkt
-				else:
-					self.nextRR = (self.nextRR + 1) % numPriority# try next possible index since no packet with current index in the buffer
+			
+			self.nextRR = (self.nextRR + 1) % numPriority# try next possible index since no packet with current index in the buffer
 
 	def EDF (self, buf, *current_time):
 		#return (outputpkt) which pkt obj is the urgentest
