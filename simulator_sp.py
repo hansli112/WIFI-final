@@ -222,36 +222,124 @@ def main():
 	class_a[0], class_a[1], class_a[2], class_a[3] = Simulator("FIFO")
 	class_b[0], class_b[1], class_b[2], class_b[3] = Simulator("EDF")
 	class_c[0], class_c[1], class_c[2], class_c[3] = Simulator("SJF")
-	class_d[0], class_d[1], class_d[2], class_c[3] = Simulator("multi_queue")
-	class_e[0], class_e[1], class_e[2], class_c[3] = Simulator("RR")
+	class_d[0], class_d[1], class_d[2], class_d[3] = Simulator("multi_queue")
+	class_e[0], class_e[1], class_e[2], class_e[3] = Simulator("RR")
 
-	#Plot data
+	print(len(class_a))
+	print(len(class_b))
+
+	'''
+	This part is bits error rate
+	'''
+	#Plot bits error rate data
 	bar_width = 0.15
 	xcor = np.arange(10)
+	ber_a = np.true_divide(class_a[0], 10000)
+	ber_b = np.true_divide(class_b[0], 10000)
+	ber_c = np.true_divide(class_c[0], 10000)
+	ber_d = np.true_divide(class_d[0], 10000)
+	ber_e = np.true_divide(class_e[0], 10000)
+
+	plt.figure(1)
+	plt.bar(xcor, ber_a, label = 'FIFO', width=bar_width, color = "green")
+	plt.bar(xcor + bar_width, ber_b, label = 'RR', width=bar_width, color = "blue")
+	plt.bar(xcor + 2*bar_width, ber_c, label = 'EDF', width=bar_width, color = "red")
+	plt.bar(xcor + 3*bar_width, ber_d, label = 'SJF', width=bar_width, color = "yellow")
+	plt.bar(xcor + 4*bar_width, ber_e, label = 'MTQ', width=bar_width, color = "black")
+
+	#Label of capacity plot
+	x_name =  ['user1', 'user2', 'user3', 'user4', 'user5', 'user6', 'user7', 'user8', 'user9', 'user10']
+	plt.xticks(xcor + bar_width*2, x_name)
+	plt.xlabel("users")
+	plt.ylabel("Bits error rate")
+	plt.ylim(0, 160)
+	plt.title("BER")
+
+	#Plot legend and the plot
+	plt.legend()
+
+	'''
+	This part is latency part
+	'''
+	#Plot capacity data
+	late_a = np.multiply(class_a[1], 1000)
+	late_b = np.multiply(class_b[1], 1000)
+	late_c = np.multiply(class_c[1], 1000)
+	late_d = np.multiply(class_d[1], 1000)
+	late_e = np.multiply(class_e[1], 1000)
+
+	plt.figure(2)
+	plt.bar(xcor, late_a, label = 'FIFO', width=bar_width, color = "green")
+	plt.bar(xcor + bar_width, late_b, label = 'RR', width=bar_width, color = "blue")
+	plt.bar(xcor + 2*bar_width, late_c, label = 'EDF', width=bar_width, color = "red")
+	plt.bar(xcor + 3*bar_width, late_d, label = 'SJF', width=bar_width, color = "yellow")
+	plt.bar(xcor + 4*bar_width, late_e, label = 'MTQ', width=bar_width, color = "black")
+
+	#Label of capacity plot
+	plt.xticks(xcor + bar_width*2, x_name)
+	plt.xlabel("users")
+	plt.ylabel("Capacity (bits/s)")
+	plt.ylim(0, 160)
+	plt.title("Capacity")
+
+	#Plot legend and the plot
+	plt.legend()
+
+
+	'''
+	This part is capacity part
+	'''
+	#Plot capacity data
 	cap_a = np.true_divide(class_a[2], 1000)
 	cap_b = np.true_divide(class_b[2], 1000)
 	cap_c = np.true_divide(class_c[2], 1000)
 	cap_d = np.true_divide(class_d[2], 1000)
 	cap_e = np.true_divide(class_e[2], 1000)
+	
+	plt.figure(3)
 	plt.bar(xcor, cap_a, label = 'FIFO', width=bar_width, color = "green")
 	plt.bar(xcor + bar_width, cap_b, label = 'RR', width=bar_width, color = "blue")
 	plt.bar(xcor + 2*bar_width, cap_c, label = 'EDF', width=bar_width, color = "red")
 	plt.bar(xcor + 3*bar_width, cap_d, label = 'SJF', width=bar_width, color = "yellow")
 	plt.bar(xcor + 4*bar_width, cap_e, label = 'MTQ', width=bar_width, color = "black")
 
-	#Label of plot
-	x_name =  ['user1', 'user2', 'user3', 'user4', 'user5', 'user6', 'user7', 'user8', 'user9', 'user10']
+	#Label of capacity plot
 	plt.xticks(xcor + bar_width*2, x_name)
 	plt.xlabel("users")
-	plt.ylabel("Base on what variable")
+	plt.ylabel("Capacity (bits/s)")
 	plt.ylim(0, 160)
 	plt.title("Capacity")
 
 	#Plot legend and the plot
 	plt.legend()
+
+
+	'''
+	This part is score
+	'''
+	#Plot the scores data
+	scor_a = class_a[3] * 100
+	scor_b = class_b[3] * 100
+	scor_c = class_c[3] * 100
+	scor_d = class_d[3] * 100
+	scor_e = class_e[3] * 100
+
+	plt.figure(4)
+	plt.bar(xcor, scor_a, label = 'FIFO', width=bar_width, color = "green")
+	plt.bar(xcor + bar_width, scor_b, label = 'RR', width=bar_width, color = "blue")
+	plt.bar(xcor + 2*bar_width, scor_c, label = 'EDF', width=bar_width, color = "red")
+	plt.bar(xcor + 3*bar_width, scor_d, label = 'SJF', width=bar_width, color = "yellow")
+	plt.bar(xcor + 4*bar_width, scor_e, label = 'MTQ', width=bar_width, color = "black")
+
+	#Label of Score plot
+	plt.xticks(xcor + bar_width*2, x_name)
+	plt.xlabel("users")
+	plt.ylabel("Scores")
+	plt.ylim(0, 160)
+	plt.title("Scores")
+	plt.legend()
+
 	plt.show()
-
-
 
 
 
