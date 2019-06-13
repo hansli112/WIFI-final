@@ -45,7 +45,7 @@ rx_gain = UE_gain
 central_cell = Cell([0, 0], radius)
 
 tmp = central_cell.gen_cell()
-
+'''
 plt.figure()
 plt.title("1-1 Topology")
 plt.xlabel('x axis(m)')
@@ -54,13 +54,14 @@ plt.ylabel('y axis(m)')
 plt.plot(tmp[0], tmp[1])   #plot cell
 
 plt.plot(0, 0, 'r^')
-
+'''
 # create UEs and at the same time create buffers for each UE-------------
 UEs_pos = central_cell.gen_UEs(tmp[0], tmp[1], N_UE)
+'''
 plt.plot(UEs_pos[:, 0], UEs_pos[:, 1], "b*")
 
 plt.show()
-
+'''
 
 
 
@@ -153,15 +154,11 @@ def Simulator(algorithm):
 			nextpkt_dest = nextpkt.getToWhom()
 
 
-
-
-
-
 	#record some results for each UE-------------------------
 	for ue in b.getDrop_log():
 		loss_bits[ue] = total_bits(b.getDrop_log()[ue])
-		biterror_rate[ue] = loss_bits[ue] / gen.getLog()[ue]
-		latency[ue] = latency[ue] / gen.getLog()[ue]
+		biterror_rate[ue] = np.true_divide(loss_bits[ue], gen.getLog()[ue])
+		latency[ue] = np.true_divide(latency[ue], gen.getLog()[ue])
 
 	print("----------------statistics----------------")
 	print('@@scheduling method is ' +  '[' + algorithm + ']' + '\n')
@@ -172,6 +169,8 @@ def Simulator(algorithm):
 	UEs_avgC = central_cell.UEs_avgC(simulation_time=simulation_T)
 	print("UEs_avgC", UEs_avgC, "\n")
 
+	scores = score(0, BER=biterror_rate, latency_per_bit=latency)
+	print("score", scores)
 
 	#make chart---------------------------------------------------
 	#plz use list for making chart
@@ -186,28 +185,71 @@ def Simulator(algorithm):
 		biterror_rate_list.append(biterror_rate[ue])
 		latency_list.append(latency[ue])
 
+	
+
+	return biterror_rate_list, latency_list, UEs_avgC.tolist(), scores
 
 
+
+def score(factor, BER, latency_per_bit):
+	#argument BER and latency_per_bit are dict
+
+	metric = factor * np.array(list(BER.values()))+ (1 - factor) * np.array(list(latency_per_bit.values()))
+	output = 1 - np.true_divide(metric, sum(metric))
+	return output
 
 
 
 def main():
-	Simulator("FIFO")
+	'''
+	Construct the 2 dim array for the bar plot
+	w is width of array 
+	h is height of array
+	'''
+	w, h = 10, 4
+	class_a = [[0 for i in range(w)] for j in range(h)]
+	class_b = [[0 for i in range(w)] for j in range(h)]
+	class_c = [[0 for i in range(w)] for j in range(h)]
+	class_d = [[0 for i in range(w)] for j in range(h)]
+	class_e = [[0 for i in range(w)] for j in range(h)]
 
+	'''
+	index 0 is bits error rate
+	index 1 is latency
+	index 2 is UE's average receive capacity
+	index 3 is scores
+	'''
+	class_a[0], class_a[1], class_a[2], class_a[3] = Simulator("FIFO")
+	class_b[0], class_b[1], class_b[2], class_b[3] = Simulator("EDF")
+	class_c[0], class_c[1], class_c[2], class_c[3] = Simulator("SJF")
+	class_d[0], class_d[1], class_d[2], class_c[3] = Simulator("multi_queue")
+	class_e[0], class_e[1], class_e[2], class_c[3] = Simulator("RR")
 
+	#Plot data
+	bar_width = 0.15
+	xcor = np.arange(10)
+	cap_a = np.true_divide(class_a[2], 1000)
+	cap_b = np.true_divide(class_b[2], 1000)
+	cap_c = np.true_divide(class_c[2], 1000)
+	cap_d = np.true_divide(class_d[2], 1000)
+	cap_e = np.true_divide(class_e[2], 1000)
+	plt.bar(xcor, cap_a, label = 'FIFO', width=bar_width, color = "green")
+	plt.bar(xcor + bar_width, cap_b, label = 'RR', width=bar_width, color = "blue")
+	plt.bar(xcor + 2*bar_width, cap_c, label = 'EDF', width=bar_width, color = "red")
+	plt.bar(xcor + 3*bar_width, cap_d, label = 'SJF', width=bar_width, color = "yellow")
+	plt.bar(xcor + 4*bar_width, cap_e, label = 'MTQ', width=bar_width, color = "black")
 
+	#Label of plot
+	x_name =  ['user1', 'user2', 'user3', 'user4', 'user5', 'user6', 'user7', 'user8', 'user9', 'user10']
+	plt.xticks(xcor + bar_width*2, x_name)
+	plt.xlabel("users")
+	plt.ylabel("Base on what variable")
+	plt.ylim(0, 160)
+	plt.title("Capacity")
 
-
-	Simulator("EDF")
-
-
-	Simulator("SJF")
-
-	Simulator("multi_queue")
-
-
-	Simulator("RR")
-
+	#Plot legend and the plot
+	plt.legend()
+	plt.show()
 
 
 
