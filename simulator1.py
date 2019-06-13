@@ -40,8 +40,10 @@ rx_gain = UE_gain
 #-----print Topology-----------------------------------
 
 #install DL buffer for cell
-DL_buffer  = Buffer(2000)
-central_cell = Cell([0, 0],DL_buffer, radius)
+
+
+central_cell = Cell([0, 0], radius)
+
 tmp = central_cell.gen_cell()
 
 plt.figure()
@@ -59,17 +61,17 @@ plt.plot(UEs_pos[:, 0], UEs_pos[:, 1], "b*")
 
 plt.show()
 
+
+
+
+
 def Simulator(algorithm):
 	'''
 	algorithm: specify which scheduling method.
 	'''
 
-
-	#plt.show()
-	UEs_arr = []
-	UEs_buffer = []
-
-
+	#install buffer for following scheduling algorithm
+	central_cell.InstallBuffer()
 
 	#simulation setup-------------------------------------------
 
