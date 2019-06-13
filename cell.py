@@ -7,10 +7,10 @@ from channel import *
 class Cell:
 	#1.generate hexagon 2.scatter UEs
 
-	def __init__(self, BS_pos, BS_buffer, radius, ID=0):
+	def __init__(self, BS_pos, radius, ID=0):
 		#declare a cell
 		self.BS_pos = BS_pos
-		self.BS_buffer = BS_buffer
+
 		self.radius = radius
 		self.ID = ID
 
@@ -131,6 +131,10 @@ class Cell:
 
 	def GetBuffer(self):
 		return self.BS_buffer
+
+	def InstallBuffer(self):
+		#for analyzing different algorithm and same UEs topology
+		self.BS_buffer = Buffer(2000)
 
 
 
