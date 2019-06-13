@@ -225,20 +225,17 @@ def main():
 	class_d[0], class_d[1], class_d[2], class_d[3] = Simulator("multi_queue")
 	class_e[0], class_e[1], class_e[2], class_e[3] = Simulator("RR")
 
-	print(len(class_a))
-	print(len(class_b))
-
 	'''
 	This part is bits error rate
 	'''
 	#Plot bits error rate data
 	bar_width = 0.15
 	xcor = np.arange(10)
-	ber_a = np.true_divide(class_a[0], 10000)
-	ber_b = np.true_divide(class_b[0], 10000)
-	ber_c = np.true_divide(class_c[0], 10000)
-	ber_d = np.true_divide(class_d[0], 10000)
-	ber_e = np.true_divide(class_e[0], 10000)
+	ber_a = np.multiply(class_a[0], 100)
+	ber_b = np.multiply(class_b[0], 100)
+	ber_c = np.multiply(class_c[0], 100)
+	ber_d = np.multiply(class_d[0], 100)
+	ber_e = np.multiply(class_e[0], 100)
 
 	plt.figure(1)
 	plt.bar(xcor, ber_a, label = 'FIFO', width=bar_width, color = "green")
