@@ -5,9 +5,9 @@ import numpy as np
 from traffic import *
 from channel import *
 from schedule import *
+import matplotlib.pyplot as plt
 
 #from channel import two_ray_model, ith_SINR, rx_Power, SIN
-
 
 def Simulator(algorithm):
 	'''
@@ -43,13 +43,13 @@ def Simulator(algorithm):
 	tx_gain = BS_gain
 	rx_gain = UE_gain
 
-
 #-----print Topology-----------------------------------
 
 	#install DL buffer for cell
 	DL_buffer  = Buffer(2000)
 	central_cell = Cell([0, 0],DL_buffer, radius)
 	tmp = central_cell.gen_cell()
+
 	plt.figure()
 	plt.title("1-1 Topology")
 	plt.xlabel('x axis(m)')
@@ -115,9 +115,9 @@ def Simulator(algorithm):
 		methods = [scheduler.FIFO, scheduler.EDF, scheduler.SJF, scheduler.multi_queue, scheduler.RR]
 
 		if algorithm == 'RR':
-			arg = 8  		#argument is numPriority
+			arg = 8  		#argument for schedule function is numPriority
 		elif algorithm == 'EDF':
-			arg = t 		#argument is current_time
+			arg = t 		#argument for schedule function is current_time
 		else:
 			arg = None
 
@@ -155,8 +155,8 @@ def Simulator(algorithm):
 	#record some results for each UE-------------------------
 	for ue in b.getDrop_log():
 		loss_bits[ue] = total_bits(b.getDrop_log()[ue])
-		biterror_rate[ue] = np.true_divide(loss_bits[ue], gen.getLog()[ue])
-		latency[ue] = np.true_divide(latency[ue], gen.getLog()[ue])
+		biterror_rate[ue] = loss_bits[ue] / gen.getLog()[ue]
+		latency[ue] = latency[ue] / gen.getLog()[ue]
 
 	print("----------------statistics----------------")
 	print('@@scheduling method is ' +  '[' + algorithm + ']' + '\n')
@@ -168,14 +168,29 @@ def Simulator(algorithm):
 	print("UEs_avgC", UEs_avgC, "\n")
 
 
+	#make chart---------------------------------------------------
+	#plz use list for making chart
+	UE = []
+	loss_bits_list = []
+	biterror_rate_list = []
+	latency_list = []
+
+	for ue in range(N_UE):
+		UE.append(ue)
+		loss_bits_list.append(loss_bits[ue])
+		biterror_rate_list.append(biterror_rate[ue])
+		latency_list.append(latency[ue])
+
+
+
+
 
 
 def main():
-
 	Simulator("FIFO")
 
 
-	Simulator("RR")
+
 
 
 	Simulator("EDF")
@@ -185,6 +200,8 @@ def main():
 
 	Simulator("multi_queue")
 
+
+	Simulator("RR")
 
 
 
