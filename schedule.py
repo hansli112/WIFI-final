@@ -56,12 +56,12 @@ class Schedule:
 		if buf.isEmpty():
 			return None
 
-		minExpire = current_time - buf[-1].getTimestamp()
+		minExpire = buf[-1].getDeadline() - (current_time - buf[-1].getTimestamp())
 		outputpkt = buf[-1]
 
 		for pkt in buf.ViewBuffer()[::-1]:#reverse list for good processing in ED
-			if (current_time - pkt.getTimestamp()) <  minExpire:
-				minExpire = current_time - pkt.getTimestamp()
+			if (pkt.getDeadline() - (current_time - pkt.getTimestamp())) <  minExpire:
+				minExpire = pkt.getDeadline() - (current_time - pkt.getTimestamp())
 				output = pkt
 		return outputpkt
 

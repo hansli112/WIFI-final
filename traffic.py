@@ -44,9 +44,9 @@ class Packet:
 
         self.ToWhom = ToWhom
         self.priority = ToWhom % 8   #0~7
-        self.length = random.randint(64*(self.priority+1)*8, 1518*(self.priority+2)*8)
+        self.length = random.randint(64*8, 1518*8)
 
-        self.deadline = random.randint(300, 3600)
+        self.deadline = random.randint(1, 10) * (1 + self.priority) / 8
 
         self.time_stamp = time_stamp
 
