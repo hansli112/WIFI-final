@@ -66,6 +66,8 @@ plt.show()
 
 
 
+
+
 def Simulator(algorithm):
 	'''
 	algorithm: specify which scheduling method.
@@ -185,9 +187,12 @@ def Simulator(algorithm):
 		biterror_rate_list.append(biterror_rate[ue])
 		latency_list.append(latency[ue])
 
-	
+
 
 	return biterror_rate_list, latency_list, UEs_avgC.tolist(), scores
+
+
+
 
 
 
@@ -199,11 +204,29 @@ def score(factor, BER, latency_per_bit):
 	return output
 
 
+def AlgorithmPerformance(UEs_score): #This is just the score for any algorithm we used
+	#type(UEs_score) is list
+	degree = 0 		#perfect degree is equal to len(UEs_score) - 1
+
+	for i in range(len(UEs_score) - 1):
+		if UEs_score[i] > UEs_score [i + 1]:
+			degree += 1
+
+		elif UEs_score[i] < UEs_score [i + 1]:
+			degree -= 1
+
+		else:
+			pass
+
+	return degree
+
+
+
 
 def main():
 	'''
 	Construct the 2 dim array for the bar plot
-	w is width of array 
+	w is width of array
 	h is height of array
 	'''
 	w, h = 10, 4
@@ -220,6 +243,8 @@ def main():
 	index 3 is scores
 	'''
 	class_a[0], class_a[1], class_a[2], class_a[3] = Simulator("FIFO")
+
+
 	class_b[0], class_b[1], class_b[2], class_b[3] = Simulator("EDF")
 	class_c[0], class_c[1], class_c[2], class_c[3] = Simulator("SJF")
 	class_d[0], class_d[1], class_d[2], class_d[3] = Simulator("multi_queue")
@@ -228,7 +253,7 @@ def main():
 	'''
 	This part is bits error rate
 	'''
-	#Plot bits error rate data
+	#Plot bits error rate data-----------------------
 	bar_width = 0.15
 	xcor = np.arange(10)
 	ber_a = np.multiply(class_a[0], 100)
@@ -292,7 +317,7 @@ def main():
 	cap_c = np.true_divide(class_c[2], 1000)
 	cap_d = np.true_divide(class_d[2], 1000)
 	cap_e = np.true_divide(class_e[2], 1000)
-	
+
 	plt.figure(3)
 	plt.bar(xcor, cap_a, label = 'FIFO', width=bar_width, color = "green")
 	plt.bar(xcor + bar_width, cap_b, label = 'RR', width=bar_width, color = "blue")
@@ -335,6 +360,24 @@ def main():
 	plt.ylim(0, 160)
 	plt.title("Scores")
 	plt.legend()
+
+
+
+	# Evaluation  the performance of the algorithms to the expected result.
+	algorithms = ["FIFO", "RR", "EDF", "SJF", "MTQ"]
+	y_pos = np.arange((len(algorithms)))
+
+	algorithms_performance = [AlgorithmPerformance(sc) for sc in [scor_a, scor_b, scor_c, scor_d, scor_e]]
+	print(scor_a)
+	print(AlgorithmPerformance(scor_a))
+	plt.figure(5)
+	plt.bar(y_pos, algorithms_performance, align='center', alpha=0.5)
+	plt.xticks(y_pos, algorithms)
+	plt.ylabel("performance")
+	plt.title("performance of algorithms")
+
+
+
 
 	plt.show()
 
