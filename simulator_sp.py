@@ -193,9 +193,6 @@ def Simulator(algorithm):
 
 
 
-
-
-
 def score(factor, BER, latency_per_bit):
 	#argument BER and latency_per_bit are dict
 
@@ -300,9 +297,9 @@ def main():
 	#Label of capacity plot
 	plt.xticks(xcor + bar_width*2, x_name)
 	plt.xlabel("users")
-	plt.ylabel("Capacity (bits/s)")
+	plt.ylabel("Latency (s)")
 	plt.ylim(0, 160)
-	plt.title("Capacity")
+	plt.title("Latency")
 
 	#Plot legend and the plot
 	plt.legend()
