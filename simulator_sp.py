@@ -201,21 +201,53 @@ def score(factor, BER, latency_per_bit):
 	return output
 
 
-def AlgorithmPerformance(UEs_score): #This is just the score for any algorithm we used
+
+
+def AlgorithmPerformance(UEs_score, numPriority=8): #This is just the score for any algorithm we used
 	#type(UEs_score) is list
-	degree = 0 		#perfect degree is equal to len(UEs_score) - 1
+	miss = 0 		#perfect degree is equal to len(UEs_score) - 1
+	P = {0: np.array([]), 1: np.array([]), 2: np.array([]), 3: np.array([]), 4: np.array([]), 5: np.array([]), 6: np.array([]), 7: np.array([])}
 
-	for i in range(len(UEs_score) - 1):
-		if UEs_score[i] > UEs_score [i + 1]:
-			degree += 1
+	total = 0  #total # of comparision
 
-		elif UEs_score[i] < UEs_score [i + 1]:
-			degree -= 1
+	#group UEs' score based on priority
+	for j in range(numPriority):
+		for i in range(len(UEs_score)):
+			if i % numPriority ==j:
 
-		else:
-			pass
+				P[j] = np.append(P[j], UEs_score[i])
 
-	return degree
+	#compare if all scores with higher priority is higher than all scores with lower priority
+	for j in range(numPriority):
+		for s in P[j]:
+
+			if j == numPriority - 1:
+				break   #prevend error from P[j+1] following
+
+
+			miss += numFalse(s >= P[j+1])
+			total += len(s >= P[j+1])
+
+
+	return (total - miss) / total * 100 #performance (%)
+
+
+
+#used in AlgorithmPerformance function
+def numFalse(narray):
+	result = 0
+	for f in narray:
+		if f == False:
+			result += 1
+
+	return result
+
+
+
+
+
+
+	return degree / (len(UEs_score) - 1) * 100
 
 
 
@@ -365,8 +397,7 @@ def main():
 	y_pos = np.arange((len(algorithms)))
 
 	algorithms_performance = [AlgorithmPerformance(sc) for sc in [scor_a, scor_b, scor_c, scor_d, scor_e]]
-	print(scor_a)
-	print(AlgorithmPerformance(scor_a))
+
 	plt.figure(5)
 	plt.bar(y_pos, algorithms_performance, align='center', alpha=0.5)
 	plt.xticks(y_pos, algorithms)
@@ -374,7 +405,7 @@ def main():
 	plt.title("performance of algorithms")
 
 
-
+	algorithms_performance = [AlgorithmPerformance(sc) for sc in [scor_a, scor_b, scor_c, scor_d, scor_e]]
 
 	plt.show()
 
