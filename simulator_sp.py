@@ -16,7 +16,7 @@ h_BS = 1.5 + 50
 h_UE = 1.5
 BS_gain = 14
 UE_gain = 14
-N_UE = 10   #There are N_UE uniformly distributed in each cell
+N_UE = 12   #There are N_UE uniformly distributed in each cell
 ISD = 500   #inter-site distance
 radius = 500 / 3**0.5
 
@@ -78,7 +78,7 @@ def Simulator(algorithm):
 
 	#simulation setup-------------------------------------------
 
-	simulation_T = 1000
+	simulation_T = 500
 	loss_bits = {}   #record loss bits for each UE
 	biterror_rate = {}
 	latency = {}	#record latency(total latency for all pkt) for each UE
@@ -171,8 +171,10 @@ def Simulator(algorithm):
 	UEs_avgC = central_cell.UEs_avgC(simulation_time=simulation_T)
 	print("UEs_avgC", UEs_avgC, "\n")
 
-	scores = score(0, BER=biterror_rate, latency_per_bit=latency)
-	print("score", scores)
+
+	scores1 = score(0, BER=biterror_rate, latency_per_bit=latency)
+	scores2 = score(0.5, BER=biterror_rate, latency_per_bit=latency)
+	scores3 = score(1, BER=biterror_rate, latency_per_bit=latency)
 
 	#make chart---------------------------------------------------
 	#plz use list for making chart
@@ -189,14 +191,20 @@ def Simulator(algorithm):
 
 
 
-	return biterror_rate_list, latency_list, UEs_avgC.tolist(), scores
+	return biterror_rate_list, latency_list, UEs_avgC.tolist(), scores1, scores2, scores3
 
 
 
+
+
+
+
+#satisfacation of UEs-------------------------------------------------
 def score(factor, BER, latency_per_bit):
 	#argument BER and latency_per_bit are dict
 
 	metric = factor * np.array(list(BER.values()))+ (1 - factor) * np.array(list(latency_per_bit.values()))
+	#output = 1 - np.true_divide(metric, sum(metric))
 	output = 1 - np.true_divide(metric, sum(metric))
 	return output
 
@@ -264,7 +272,7 @@ def main():
 	w is width of array
 	h is height of array
 	'''
-	w, h = 10, 4
+	w, h = N_UE, 6
 	class_a = [[0 for i in range(w)] for j in range(h)]
 	class_b = [[0 for i in range(w)] for j in range(h)]
 	class_c = [[0 for i in range(w)] for j in range(h)]
@@ -277,20 +285,20 @@ def main():
 	index 2 is UE's average receive capacity
 	index 3 is scores
 	'''
-	class_a[0], class_a[1], class_a[2], class_a[3] = Simulator("FIFO")
+	class_a[0], class_a[1], class_a[2], class_a[3], class_a[4], class_a[5] = Simulator("FIFO")
 
 
-	class_b[0], class_b[1], class_b[2], class_b[3] = Simulator("EDF")
-	class_c[0], class_c[1], class_c[2], class_c[3] = Simulator("SJF")
-	class_d[0], class_d[1], class_d[2], class_d[3] = Simulator("multi_queue")
-	class_e[0], class_e[1], class_e[2], class_e[3] = Simulator("RR")
+	class_b[0], class_b[1], class_b[2], class_b[3], class_b[4], class_b[5] = Simulator("EDF")
+	class_c[0], class_c[1], class_c[2], class_c[3], class_c[4], class_c[5]  = Simulator("SJF")
+	class_d[0], class_d[1], class_d[2], class_d[3], class_d[4], class_d[5]  = Simulator("multi_queue")
+	class_e[0], class_e[1], class_e[2], class_e[3], class_e[4], class_e[5]  = Simulator("RR")
 
 	'''
 	This part is bits error rate
 	'''
 	#Plot bits error rate data-----------------------
 	bar_width = 0.15
-	xcor = np.arange(10)
+	xcor = np.arange(N_UE)
 	ber_a = np.multiply(class_a[0], 100)
 	ber_b = np.multiply(class_b[0], 100)
 	ber_c = np.multiply(class_c[0], 100)
@@ -305,7 +313,10 @@ def main():
 	plt.bar(xcor + 4*bar_width, ber_e, label = 'MTQ', width=bar_width, color = "black")
 
 	#Label of capacity plot
-	x_name =  ['user1', 'user2', 'user3', 'user4', 'user5', 'user6', 'user7', 'user8', 'user9', 'user10']
+	x_name = []
+	for i in range(N_UE):
+		x_name.append('user'+str(i+1))
+
 	plt.xticks(xcor + bar_width*2, x_name)
 	plt.xlabel("users")
 	plt.ylabel("Bits error rate")
@@ -372,8 +383,9 @@ def main():
 
 
 	'''
-	This part is score
+	This part is score for tradeoff factor = 0
 	'''
+	α = 0
 	#Plot the scores data
 	scor_a = class_a[3] * 100
 	scor_b = class_b[3] * 100
@@ -393,8 +405,9 @@ def main():
 	plt.xlabel("users")
 	plt.ylabel("Scores")
 	plt.ylim(0, 160)
-	plt.title("Scores")
+	plt.title("Scores (α=" + str(α) + ")")
 	plt.legend()
+
 
 
 
@@ -411,14 +424,124 @@ def main():
 	plt.bar(y_pos, algorithms_Accuracy, align='center', alpha=0.5)
 	plt.xticks(y_pos, algorithms)
 	plt.ylabel("Acc (%)")
-	plt.title("Accuracy(about prioritizing UEs) of algorithms")
+	plt.title("Accuracy(about Prioritizing UEs) of Algorithms (α=" + str(α) + ")")
 
 
 	plt.figure(6)
 	plt.bar(y_pos, algorithms_performance, align='center', alpha=0.5)
 	plt.xticks(y_pos, algorithms)
 	plt.ylabel("performance")
-	plt.title("performance of algorithms")
+	plt.title("Performance of Algorithms (α=" + str(α) + ")")
+
+
+
+
+
+	'''
+	This part is score for tradeoff factor = 0.5
+	'''
+	α = 0.5
+	#Plot the scores data
+	scor_a = class_a[4] * 100
+	scor_b = class_b[4] * 100
+	scor_c = class_c[4] * 100
+	scor_d = class_d[4] * 100
+	scor_e = class_e[4] * 100
+
+	plt.figure(7)
+	plt.bar(xcor, scor_a, label = 'FIFO', width=bar_width, color = "green")
+	plt.bar(xcor + bar_width, scor_b, label = 'RR', width=bar_width, color = "blue")
+	plt.bar(xcor + 2*bar_width, scor_c, label = 'EDF', width=bar_width, color = "red")
+	plt.bar(xcor + 3*bar_width, scor_d, label = 'SJF', width=bar_width, color = "yellow")
+	plt.bar(xcor + 4*bar_width, scor_e, label = 'MTQ', width=bar_width, color = "black")
+
+	#Label of Score plot
+	plt.xticks(xcor + bar_width*2, x_name)
+	plt.xlabel("users")
+	plt.ylabel("Scores")
+	plt.ylim(0, 160)
+	plt.title("Scores (α=" + str(α) + ")")
+	plt.legend()
+
+
+
+
+	# Evaluation  the performance of the algorithms to the expected result.
+	algorithms = ["FIFO", "RR", "EDF", "SJF", "MTQ"]
+	y_pos = np.arange((len(algorithms)))
+
+	algorithms_Accuracy = [AlgorithmPerformance(sc)[0] for sc in [scor_a, scor_b, scor_c, scor_d, scor_e]]
+	algorithms_performance = [AlgorithmPerformance(sc)[1] for sc in [scor_a, scor_b, scor_c, scor_d, scor_e]]
+
+
+
+	plt.figure(8)
+	plt.bar(y_pos, algorithms_Accuracy, align='center', alpha=0.5)
+	plt.xticks(y_pos, algorithms)
+	plt.ylabel("Acc (%)")
+	plt.title("Accuracy(about Prioritizing UEs) of Algorithms (α=" + str(α) + ")")
+
+
+	plt.figure(9)
+	plt.bar(y_pos, algorithms_performance, align='center', alpha=0.5)
+	plt.xticks(y_pos, algorithms)
+	plt.ylabel("performance")
+	plt.title("Performance of Algorithms (α=" + str(α) + ")")
+
+
+
+
+
+	'''
+	This part is score for tradeoff factor = 1
+	'''
+	α = 1
+	#Plot the scores data
+	scor_a = class_a[5] * 100
+	scor_b = class_b[5] * 100
+	scor_c = class_c[5] * 100
+	scor_d = class_d[5] * 100
+	scor_e = class_e[5] * 100
+
+	plt.figure(10)
+	plt.bar(xcor, scor_a, label = 'FIFO', width=bar_width, color = "green")
+	plt.bar(xcor + bar_width, scor_b, label = 'RR', width=bar_width, color = "blue")
+	plt.bar(xcor + 2*bar_width, scor_c, label = 'EDF', width=bar_width, color = "red")
+	plt.bar(xcor + 3*bar_width, scor_d, label = 'SJF', width=bar_width, color = "yellow")
+	plt.bar(xcor + 4*bar_width, scor_e, label = 'MTQ', width=bar_width, color = "black")
+
+	#Label of Score plot
+	plt.xticks(xcor + bar_width*2, x_name)
+	plt.xlabel("users")
+	plt.ylabel("Scores")
+	plt.ylim(0, 160)
+	plt.title("Scores (α=" + str(α) + ")")
+	plt.legend()
+
+
+
+
+	# Evaluation  the performance of the algorithms to the expected result.
+	algorithms = ["FIFO", "RR", "EDF", "SJF", "MTQ"]
+	y_pos = np.arange((len(algorithms)))
+
+	algorithms_Accuracy = [AlgorithmPerformance(sc)[0] for sc in [scor_a, scor_b, scor_c, scor_d, scor_e]]
+	algorithms_performance = [AlgorithmPerformance(sc)[1] for sc in [scor_a, scor_b, scor_c, scor_d, scor_e]]
+
+
+
+	plt.figure(11)
+	plt.bar(y_pos, algorithms_Accuracy, align='center', alpha=0.5)
+	plt.xticks(y_pos, algorithms)
+	plt.ylabel("Acc (%)")
+	plt.title("Accuracy(about Prioritizing UEs) of Algorithms (α=" + str(α) + ")")
+
+
+	plt.figure(12)
+	plt.bar(y_pos, algorithms_performance, align='center', alpha=0.5)
+	plt.xticks(y_pos, algorithms)
+	plt.ylabel("performance")
+	plt.title("Performance of Algorithms (α=" + str(α) + ")")
 	plt.show()
 
 
