@@ -210,6 +210,8 @@ def AlgorithmPerformance(UEs_score, numPriority=8): #This is just the score for 
 
 	total = 0  #total # of comparision
 
+	degree = 0
+
 	#group UEs' score based on priority
 	for j in range(numPriority):
 		for i in range(len(UEs_score)):
@@ -226,10 +228,14 @@ def AlgorithmPerformance(UEs_score, numPriority=8): #This is just the score for 
 
 
 			miss += numFalse(s >= P[j+1])
+			degree += sum(s - P[j+1])
 			total += len(s >= P[j+1])
 
+	Accuracy = (total - miss) / total * 100
 
-	return (total - miss) / total * 100 #performance (%)
+
+
+	return (Accuracy, degree) #performance (%)
 
 
 
@@ -396,18 +402,28 @@ def main():
 	algorithms = ["FIFO", "RR", "EDF", "SJF", "MTQ"]
 	y_pos = np.arange((len(algorithms)))
 
-	algorithms_performance = [AlgorithmPerformance(sc) for sc in [scor_a, scor_b, scor_c, scor_d, scor_e]]
+	algorithms_Accuracy = [AlgorithmPerformance(sc)[0] for sc in [scor_a, scor_b, scor_c, scor_d, scor_e]]
+	algorithms_performance = [AlgorithmPerformance(sc)[1] for sc in [scor_a, scor_b, scor_c, scor_d, scor_e]]
+
+
 
 	plt.figure(5)
-	plt.bar(y_pos, algorithms_performance, align='center', alpha=0.5)
+	plt.bar(y_pos, algorithms_Accuracy, align='center', alpha=0.5)
 	plt.xticks(y_pos, algorithms)
 	plt.ylabel("performance")
 	plt.title("performance of algorithms")
 
 
-	algorithms_performance = [AlgorithmPerformance(sc) for sc in [scor_a, scor_b, scor_c, scor_d, scor_e]]
-
+	plt.figure(6)
+	plt.bar(y_pos, algorithms_performance, align='center', alpha=0.5)
+	plt.xticks(y_pos, algorithms)
+	plt.ylabel("performance")
+	plt.title("performance of algorithms")
 	plt.show()
+
+
+
+
 
 
 
