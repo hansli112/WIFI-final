@@ -78,7 +78,7 @@ def Simulator(algorithm):
 
 	#simulation setup-------------------------------------------
 
-	simulation_T = 100
+	simulation_T = 1000
 	loss_bits = {}   #record loss bits for each UE
 	biterror_rate = {}
 	latency = {}	#record latency(total latency for all pkt) for each UE
@@ -410,8 +410,8 @@ def main():
 	plt.figure(5)
 	plt.bar(y_pos, algorithms_Accuracy, align='center', alpha=0.5)
 	plt.xticks(y_pos, algorithms)
-	plt.ylabel("performance")
-	plt.title("performance of algorithms")
+	plt.ylabel("Acc (%)")
+	plt.title("Accuracy(about prioritizing UEs) of algorithms")
 
 
 	plt.figure(6)
