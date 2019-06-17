@@ -4,6 +4,17 @@ import numpy as np
 from schedule import *
 from channel import *
 
+# all cell position
+BS_pos = [[0, 0], [0, 500], [0, 1000], [0, -500], [0, -1000],
+			   [750 / 3 ** 0.5, 250], [750 / 3 ** 0.5, 750], [750 / 3 ** 0.5, -250], [750 / 3 ** 0.5, -750],
+			   [1500 / 3 ** 0.5, 0], [1500 / 3 ** 0.5, 500], [1500 / 3 ** 0.5, -500],
+			   [-750 / 3 ** 0.5, 250], [-750 / 3 ** 0.5, 750], [-750 / 3 ** 0.5, -250], [-750 / 3 ** 0.5, -750],
+			   [-1500 / 3 ** 0.5, 0], [-1500 / 3 ** 0.5, 500], [-1500 / 3 ** 0.5, -500]]
+
+
+BS_pos = np.array(BS_pos)
+
+
 class Cell:
 	#1.generate hexagon 2.scatter UEs
 
@@ -63,12 +74,34 @@ class Cell:
 				counter += 1
 
 		self.UEs_pos = 	np.array(self.UEs_pos)
+		print("self.UEs_pos----------------------------------", self.UEs_pos)
+		#sort UE according to its throughput
+		dtype = [ ('UEs_pos', np.ndarray), ('throughput', float)]
+
+		values = []
+		sorted_pos = []
+
+		UEs_throughput = self.UEs_throughput()
+
+
+		for i in range(N_UE):
+			values.append((self.UEs_pos[i], UEs_throughput[i]))
+
+		a = np.array(values, dtype=dtype)
+		
+		for item in np.sort(a, order = 'throughput') :   #throughput small to big
+
+			sorted_pos.append(item[0])
+
+		self.UEs_pos = np.array(sorted_pos)
+
+
 
 		return self.UEs_pos
 
 
 
-	def UEs_throughput(self, AllCells_pos, cell_bandwidth=10 * 10 ** 6):
+	def UEs_throughput(self, AllCells_pos=BS_pos, cell_bandwidth=10 * 10 ** 6):
 			'''AllCells_pos is a numpy array of all position of cell in topology'''
 
 
