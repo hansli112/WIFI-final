@@ -209,8 +209,9 @@ def score(factor, BER, latency_per_bit):
 
 	metric = factor * np.array(list(BER.values()))+ (1 - factor) * np.array(list(latency_per_bit.values()))
 	#output = 1 - np.true_divide(metric, sum(metric))
-	temp_output = np.true_divide(metric, sum(metric))
-	output = np.true_divide(1, temp_output)
+	output = np.true_divide(metric, sum(metric))
+	output = np.true_divide(1, output)
+
 	return output
 
 
@@ -393,11 +394,11 @@ def main():
 	'''
 	alpha = 0
 	#Plot the scores data
-	scor_a = class_a[3] * 100
-	scor_b = class_b[3] * 100
-	scor_c = class_c[3] * 100
-	scor_d = class_d[3] * 100
-	scor_e = class_e[3] * 100
+	scor_a = class_a[3]
+	scor_b = class_b[3]
+	scor_c = class_c[3]
+	scor_d = class_d[3]
+	scor_e = class_e[3]
 
 	plt.figure(4)
 	plt.bar(xcor, scor_a, label = 'FIFO', width=bar_width, color = "green")
@@ -448,11 +449,11 @@ def main():
 	'''
 	alpha = 0.5
 	#Plot the scores data
-	scor_a = class_a[4] * 100
-	scor_b = class_b[4] * 100
-	scor_c = class_c[4] * 100
-	scor_d = class_d[4] * 100
-	scor_e = class_e[4] * 100
+	scor_a = class_a[4]
+	scor_b = class_b[4]
+	scor_c = class_c[4]
+	scor_d = class_d[4]
+	scor_e = class_e[4]
 
 	plt.figure(7)
 	plt.bar(xcor, scor_a, label = 'FIFO', width=bar_width, color = "green")
@@ -503,11 +504,11 @@ def main():
 	'''
 	alpha = 1
 	#Plot the scores data
-	scor_a = class_a[5] * 100
-	scor_b = class_b[5] * 100
-	scor_c = class_c[5] * 100
-	scor_d = class_d[5] * 100
-	scor_e = class_e[5] * 100
+	scor_a = class_a[5]
+	scor_b = class_b[5]
+	scor_c = class_c[5]
+	scor_d = class_d[5]
+	scor_e = class_e[5]
 
 	plt.figure(10)
 	plt.bar(xcor, scor_a, label = 'FIFO', width=bar_width, color = "green")
