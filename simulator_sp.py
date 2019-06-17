@@ -81,7 +81,8 @@ def Simulator(algorithm):
 	simulation_T = 500
 	loss_bits = {}   #record loss bits for each UE
 	biterror_rate = {}
-	latency = {}	#record latency(total latency for all pkt) for each UE
+	latency = {}
+    #record latency(total latency for all pkt) for each UE
 	#initial latency, BER dict
 	for ue_id in range(N_UE):
 		latency[ue_id] = 0
@@ -171,10 +172,13 @@ def Simulator(algorithm):
 	UEs_avgC = central_cell.UEs_avgC(simulation_time=simulation_T)
 	print("UEs_avgC", UEs_avgC, "\n")
 
-
 	scores1 = score(0, BER=biterror_rate, latency_per_bit=latency)
 	scores2 = score(0.5, BER=biterror_rate, latency_per_bit=latency)
 	scores3 = score(1, BER=biterror_rate, latency_per_bit=latency)
+
+	print(scores1)
+	print(scores2)
+	print(scores3)
 
 	#make chart---------------------------------------------------
 	#plz use list for making chart
@@ -205,7 +209,8 @@ def score(factor, BER, latency_per_bit):
 
 	metric = factor * np.array(list(BER.values()))+ (1 - factor) * np.array(list(latency_per_bit.values()))
 	#output = 1 - np.true_divide(metric, sum(metric))
-	output = 1 - np.true_divide(metric, sum(metric))
+	temp_output = np.true_divide(metric, sum(metric))
+	output = np.true_divide(1, temp_output)
 	return output
 
 
@@ -239,7 +244,8 @@ def AlgorithmPerformance(UEs_score, numPriority=8): #This is just the score for 
 			degree += sum(s - P[j+1])
 			total += len(s >= P[j+1])
 
-	Accuracy = (total - miss) / total * 100
+	Accuracy = np.true_divide((total - miss), total)
+	Accuracy = np.multiply(Accuracy, 100)
 
 
 
@@ -385,7 +391,7 @@ def main():
 	'''
 	This part is score for tradeoff factor = 0
 	'''
-	α = 0
+	alpha = 0
 	#Plot the scores data
 	scor_a = class_a[3] * 100
 	scor_b = class_b[3] * 100
@@ -404,8 +410,8 @@ def main():
 	plt.xticks(xcor + bar_width*2, x_name)
 	plt.xlabel("users")
 	plt.ylabel("Scores")
-	plt.ylim(0, 160)
-	plt.title("Scores (α=" + str(α) + ")")
+	#plt.ylim(0, 160)
+	plt.title("Scores (alpha=" + str(alpha) + ")")
 	plt.legend()
 
 
@@ -424,14 +430,14 @@ def main():
 	plt.bar(y_pos, algorithms_Accuracy, align='center', alpha=0.5)
 	plt.xticks(y_pos, algorithms)
 	plt.ylabel("Acc (%)")
-	plt.title("Accuracy(about Prioritizing UEs) of Algorithms (α=" + str(α) + ")")
+	plt.title("Accuracy(about Prioritizing UEs) of Algorithms (alpha=" + str(alpha) + ")")
 
 
 	plt.figure(6)
 	plt.bar(y_pos, algorithms_performance, align='center', alpha=0.5)
 	plt.xticks(y_pos, algorithms)
 	plt.ylabel("performance")
-	plt.title("Performance of Algorithms (α=" + str(α) + ")")
+	plt.title("Performance of Algorithms (alpha=" + str(alpha) + ")")
 
 
 
@@ -440,7 +446,7 @@ def main():
 	'''
 	This part is score for tradeoff factor = 0.5
 	'''
-	α = 0.5
+	alpha = 0.5
 	#Plot the scores data
 	scor_a = class_a[4] * 100
 	scor_b = class_b[4] * 100
@@ -459,8 +465,8 @@ def main():
 	plt.xticks(xcor + bar_width*2, x_name)
 	plt.xlabel("users")
 	plt.ylabel("Scores")
-	plt.ylim(0, 160)
-	plt.title("Scores (α=" + str(α) + ")")
+	#plt.ylim(0, 160)
+	plt.title("Scores (alpha=" + str(alpha) + ")")
 	plt.legend()
 
 
@@ -479,14 +485,14 @@ def main():
 	plt.bar(y_pos, algorithms_Accuracy, align='center', alpha=0.5)
 	plt.xticks(y_pos, algorithms)
 	plt.ylabel("Acc (%)")
-	plt.title("Accuracy(about Prioritizing UEs) of Algorithms (α=" + str(α) + ")")
+	plt.title("Accuracy(about Prioritizing UEs) of Algorithms (alpha=" + str(alpha) + ")")
 
 
 	plt.figure(9)
 	plt.bar(y_pos, algorithms_performance, align='center', alpha=0.5)
 	plt.xticks(y_pos, algorithms)
 	plt.ylabel("performance")
-	plt.title("Performance of Algorithms (α=" + str(α) + ")")
+	plt.title("Performance of Algorithms (alpha=" + str(alpha) + ")")
 
 
 
@@ -495,7 +501,7 @@ def main():
 	'''
 	This part is score for tradeoff factor = 1
 	'''
-	α = 1
+	alpha = 1
 	#Plot the scores data
 	scor_a = class_a[5] * 100
 	scor_b = class_b[5] * 100
@@ -514,8 +520,8 @@ def main():
 	plt.xticks(xcor + bar_width*2, x_name)
 	plt.xlabel("users")
 	plt.ylabel("Scores")
-	plt.ylim(0, 160)
-	plt.title("Scores (α=" + str(α) + ")")
+	#plt.ylim(0, 160)
+	plt.title("Scores (alpha=" + str(alpha) + ")")
 	plt.legend()
 
 
@@ -534,14 +540,14 @@ def main():
 	plt.bar(y_pos, algorithms_Accuracy, align='center', alpha=0.5)
 	plt.xticks(y_pos, algorithms)
 	plt.ylabel("Acc (%)")
-	plt.title("Accuracy(about Prioritizing UEs) of Algorithms (α=" + str(α) + ")")
+	plt.title("Accuracy(about Prioritizing UEs) of Algorithms (alpha=" + str(alpha) + ")")
 
 
 	plt.figure(12)
 	plt.bar(y_pos, algorithms_performance, align='center', alpha=0.5)
 	plt.xticks(y_pos, algorithms)
 	plt.ylabel("performance")
-	plt.title("Performance of Algorithms (α=" + str(α) + ")")
+	plt.title("Performance of Algorithms (alpha=" + str(alpha) + ")")
 	plt.show()
 
 
