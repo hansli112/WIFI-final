@@ -2,7 +2,7 @@ import random
 import numpy as np
 from datetime import *
 
-random.seed(40)
+random.seed(0)
 np.random.seed(0)
 
 #remove nested list-------------------------------------
