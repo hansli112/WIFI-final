@@ -16,7 +16,7 @@ h_BS = 1.5 + 50
 h_UE = 1.5
 BS_gain = 14
 UE_gain = 14
-N_UE = 12   #There are N_UE uniformly distributed in each cell
+N_UE = 8   #There are N_UE uniformly distributed in each cell
 ISD = 500   #inter-site distance
 radius = 500 / 3**0.5
 
@@ -78,7 +78,7 @@ def Simulator(algorithm):
 
 	#simulation setup-------------------------------------------
 
-	simulation_T = 500
+	simulation_T = 10000
 	loss_bits = {}   #record loss bits for each UE
 	biterror_rate = {}
 	latency = {}
@@ -161,13 +161,13 @@ def Simulator(algorithm):
 	for ue in b.getDrop_log():
 		loss_bits[ue] = total_bits(b.getDrop_log()[ue])
 		biterror_rate[ue] = np.true_divide(loss_bits[ue], gen.getLog()[ue])
-		latency[ue] = np.true_divide(latency[ue], gen.getLog()[ue])
+		latency[ue] = np.true_divide(latency[ue], gen.get_pkt_numLog()[ue] - len( b.getDrop_log()[ue]))
 
 	print("----------------statistics----------------")
 	print('@@scheduling method is ' +  '[' + algorithm + ']' + '\n')
 	print("loss_bits", loss_bits, "\n")
 	print("BER", biterror_rate, "\n")
-	print("latancy per bit", latency, "\n")
+	print("latancy/pkt", latency, "\n")
 
 	UEs_avgC = central_cell.UEs_avgC(simulation_time=simulation_T)
 	print("UEs_avgC", UEs_avgC, "\n")
@@ -207,7 +207,7 @@ def Simulator(algorithm):
 def score(factor, BER, latency_per_bit):
 	#argument BER and latency_per_bit are dict
 
-	metric = factor * np.array(list(BER.values()))+ (1 - factor) * np.array(list(latency_per_bit.values()))
+	metric = factor * np.array(list(BER.values()))+ (1 - factor) * np.array(list(latency_per_bit.values()))* (10**3)
 	#output = 1 - np.true_divide(metric, sum(metric))
 	output = np.true_divide(metric, sum(metric))
 	output = np.true_divide(1, output)
@@ -265,9 +265,6 @@ def numFalse(narray):
 
 
 
-
-
-
 	return degree / (len(UEs_score) - 1) * 100
 
 
@@ -295,10 +292,10 @@ def main():
 	class_a[0], class_a[1], class_a[2], class_a[3], class_a[4], class_a[5] = Simulator("FIFO")
 
 
-	class_b[0], class_b[1], class_b[2], class_b[3], class_b[4], class_b[5] = Simulator("EDF")
-	class_c[0], class_c[1], class_c[2], class_c[3], class_c[4], class_c[5]  = Simulator("SJF")
-	class_d[0], class_d[1], class_d[2], class_d[3], class_d[4], class_d[5]  = Simulator("multi_queue")
-	class_e[0], class_e[1], class_e[2], class_e[3], class_e[4], class_e[5]  = Simulator("RR")
+	class_b[0], class_b[1], class_b[2], class_b[3], class_b[4], class_b[5] = Simulator("RR")
+	class_c[0], class_c[1], class_c[2], class_c[3], class_c[4], class_c[5]  = Simulator("EDF")
+	class_d[0], class_d[1], class_d[2], class_d[3], class_d[4], class_d[5]  = Simulator("SJF")
+	class_e[0], class_e[1], class_e[2], class_e[3], class_e[4], class_e[5]  = Simulator("multi_queue")
 
 	'''
 	This part is bits error rate
@@ -336,7 +333,7 @@ def main():
 	'''
 	This part is latency part
 	'''
-	#Plot capacity data
+	#Plot latency data
 	late_a = np.multiply(class_a[1], 1000)
 	late_b = np.multiply(class_b[1], 1000)
 	late_c = np.multiply(class_c[1], 1000)
@@ -353,7 +350,7 @@ def main():
 	#Label of capacity plot
 	plt.xticks(xcor + bar_width*2, x_name)
 	plt.xlabel("users")
-	plt.ylabel("Latency (s)")
+	plt.ylabel("Latency (ms/pkt)")
 	plt.ylim(0, 160)
 	plt.title("Latency")
 
@@ -439,6 +436,7 @@ def main():
 	plt.xticks(y_pos, algorithms)
 	plt.ylabel("performance")
 	plt.title("Performance of Algorithms (alpha=" + str(alpha) + ")")
+
 
 
 

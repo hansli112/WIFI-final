@@ -4,6 +4,8 @@ import numpy as np
 from schedule import *
 from channel import *
 
+np.random.seed(0)
+
 # all cell position
 BS_pos = [[0, 0], [0, 500], [0, 1000], [0, -500], [0, -1000],
 			   [750 / 3 ** 0.5, 250], [750 / 3 ** 0.5, 750], [750 / 3 ** 0.5, -250], [750 / 3 ** 0.5, -750],
@@ -74,7 +76,7 @@ class Cell:
 				counter += 1
 
 		self.UEs_pos = 	np.array(self.UEs_pos)
-		print("self.UEs_pos----------------------------------", self.UEs_pos)
+		#print("self.UEs_pos----------------------------------", self.UEs_pos)
 		#sort UE according to its throughput
 		dtype = [ ('UEs_pos', np.ndarray), ('throughput', float)]
 
@@ -88,7 +90,7 @@ class Cell:
 			values.append((self.UEs_pos[i], UEs_throughput[i]))
 
 		a = np.array(values, dtype=dtype)
-		
+
 		for item in np.sort(a, order = 'throughput') :   #throughput small to big
 
 			sorted_pos.append(item[0])

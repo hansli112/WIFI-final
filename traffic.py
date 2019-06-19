@@ -2,6 +2,9 @@ import random
 import numpy as np
 from datetime import *
 
+random.seed(40)
+np.random.seed(0)
+
 #remove nested list-------------------------------------
 def removeNestList(alist):
     output = []
@@ -47,7 +50,7 @@ class Packet:
         self.length = random.randint(64*8, 1518*8)
 
 
-        self.deadline = random.randint(1, 10) * (1 + self.priority) / 8
+        self.deadline = random.randint(1, 5) * (1 + self.priority)
 
         self.time_stamp = time_stamp
 
@@ -111,6 +114,8 @@ class Traffic_generator():
                                      #Ex: self.log=[300, 400] which mean there are 300 and 400 bits have generated\
                                            #for UE0 and UE1 respectively to date.
 
+        self.pkt_numLog = [0] * UEs_num
+
     def generate(self, time_stamp):
         pkt_num = []
         self.traffic = {}
@@ -132,6 +137,7 @@ class Traffic_generator():
 
             self.log[UE_id] += total_bits(self.traffic[UE_id])  # record total bits arrival at BS for each UE
 
+            self.pkt_numLog[UE_id] += len(self.traffic[UE_id])
 
         return self.traffic #{0:[Packet(0),Packet(0)]} represent there are two pkt generated for UE0 at this moment.
 
@@ -160,6 +166,9 @@ class Traffic_generator():
     def getLog(self):
         return self.log  #type(self.log) is list
 
+    def get_pkt_numLog(self):
+        return self.pkt_numLog
+
 
 
 class Buffer:
@@ -168,6 +177,7 @@ class Buffer:
         self.capacity = capacity #total # of pkt objs which the Buffer can accommodate
 
         self.drop_log = {}
+
 
 
 
