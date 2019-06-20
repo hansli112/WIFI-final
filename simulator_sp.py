@@ -176,10 +176,6 @@ def Simulator(algorithm):
 	scores2 = score(0.5, BER=biterror_rate, latency_per_bit=latency)
 	scores3 = score(1, BER=biterror_rate, latency_per_bit=latency)
 
-	print(scores1)
-	print(scores2)
-	print(scores3)
-
 	#make chart---------------------------------------------------
 	#plz use list for making chart
 	UE = []
@@ -206,15 +202,13 @@ def Simulator(algorithm):
 #satisfacation of UEs-------------------------------------------------
 def score(factor, BER, latency_per_bit):
 	#argument BER and latency_per_bit are dict
-
-	metric = factor * np.array(list(BER.values()))+ (1 - factor) * np.array(list(latency_per_bit.values()))* (10**3)
-	#output = 1 - np.true_divide(metric, sum(metric))
+	#metric = factor * np.array(list(BER.values()))+ (1 - factor) * np.array(list(latency_per_bit.values()))* (10**3)
+	
+	metric = np.array(list(BER.values()))**factor * np.array(list(latency_per_bit.values()))**(1 - factor)
 	output = np.true_divide(metric, sum(metric))
 	output = np.true_divide(1, output)
 
 	return output
-
-
 
 
 def AlgorithmPerformance(UEs_score, numPriority=8): #This is just the score for any algorithm we used
@@ -290,8 +284,6 @@ def main():
 	index 3 is scores
 	'''
 	class_a[0], class_a[1], class_a[2], class_a[3], class_a[4], class_a[5] = Simulator("FIFO")
-
-
 	class_b[0], class_b[1], class_b[2], class_b[3], class_b[4], class_b[5] = Simulator("RR")
 	class_c[0], class_c[1], class_c[2], class_c[3], class_c[4], class_c[5]  = Simulator("EDF")
 	class_d[0], class_d[1], class_d[2], class_d[3], class_d[4], class_d[5]  = Simulator("SJF")
@@ -314,7 +306,7 @@ def main():
 	plt.bar(xcor + bar_width, ber_b, label = 'RR', width=bar_width, color = "blue")
 	plt.bar(xcor + 2*bar_width, ber_c, label = 'EDF', width=bar_width, color = "red")
 	plt.bar(xcor + 3*bar_width, ber_d, label = 'SJF', width=bar_width, color = "yellow")
-	plt.bar(xcor + 4*bar_width, ber_e, label = 'MTQ', width=bar_width, color = "black")
+	plt.bar(xcor + 4*bar_width, ber_e, label = 'WRR', width=bar_width, color = "black")
 
 	#Label of capacity plot
 	x_name = []
@@ -325,7 +317,7 @@ def main():
 	plt.xlabel("users")
 	plt.ylabel("Bits error rate")
 	plt.ylim(0, 160)
-	plt.title("BER")
+	plt.title("BER v.s. users")
 
 	#Plot legend and the plot
 	plt.legend()
@@ -345,14 +337,14 @@ def main():
 	plt.bar(xcor + bar_width, late_b, label = 'RR', width=bar_width, color = "blue")
 	plt.bar(xcor + 2*bar_width, late_c, label = 'EDF', width=bar_width, color = "red")
 	plt.bar(xcor + 3*bar_width, late_d, label = 'SJF', width=bar_width, color = "yellow")
-	plt.bar(xcor + 4*bar_width, late_e, label = 'MTQ', width=bar_width, color = "black")
+	plt.bar(xcor + 4*bar_width, late_e, label = 'WRR', width=bar_width, color = "black")
 
 	#Label of capacity plot
 	plt.xticks(xcor + bar_width*2, x_name)
 	plt.xlabel("users")
 	plt.ylabel("Latency (ms/pkt)")
-	plt.ylim(0, 160)
-	plt.title("Latency")
+    #plt.ylim(0, 160)
+	plt.title("Latency v.s. users")
 
 	#Plot legend and the plot
 	plt.legend()
@@ -373,14 +365,14 @@ def main():
 	plt.bar(xcor + bar_width, cap_b, label = 'RR', width=bar_width, color = "blue")
 	plt.bar(xcor + 2*bar_width, cap_c, label = 'EDF', width=bar_width, color = "red")
 	plt.bar(xcor + 3*bar_width, cap_d, label = 'SJF', width=bar_width, color = "yellow")
-	plt.bar(xcor + 4*bar_width, cap_e, label = 'MTQ', width=bar_width, color = "black")
+	plt.bar(xcor + 4*bar_width, cap_e, label = 'WRR', width=bar_width, color = "black")
 
 	#Label of capacity plot
 	plt.xticks(xcor + bar_width*2, x_name)
 	plt.xlabel("users")
 	plt.ylabel("Capacity (bits/s)")
 	plt.ylim(0, 160)
-	plt.title("Capacity")
+	plt.title("Capacity v.s. users")
 
 	#Plot legend and the plot
 	plt.legend()
@@ -402,13 +394,12 @@ def main():
 	plt.bar(xcor + bar_width, scor_b, label = 'RR', width=bar_width, color = "blue")
 	plt.bar(xcor + 2*bar_width, scor_c, label = 'EDF', width=bar_width, color = "red")
 	plt.bar(xcor + 3*bar_width, scor_d, label = 'SJF', width=bar_width, color = "yellow")
-	plt.bar(xcor + 4*bar_width, scor_e, label = 'MTQ', width=bar_width, color = "black")
+	plt.bar(xcor + 4*bar_width, scor_e, label = 'WRR', width=bar_width, color = "black")
 
 	#Label of Score plot
 	plt.xticks(xcor + bar_width*2, x_name)
 	plt.xlabel("users")
 	plt.ylabel("Scores")
-	#plt.ylim(0, 160)
 	plt.title("Scores (alpha=" + str(alpha) + ")")
 	plt.legend()
 
@@ -416,7 +407,7 @@ def main():
 
 
 	# Evaluation  the performance of the algorithms to the expected result.
-	algorithms = ["FIFO", "RR", "EDF", "SJF", "MTQ"]
+	algorithms = ["FIFO", "RR", "EDF", "SJF", "WRR"]
 	y_pos = np.arange((len(algorithms)))
 
 	algorithms_Accuracy = [AlgorithmPerformance(sc)[0] for sc in [scor_a, scor_b, scor_c, scor_d, scor_e]]
@@ -458,13 +449,12 @@ def main():
 	plt.bar(xcor + bar_width, scor_b, label = 'RR', width=bar_width, color = "blue")
 	plt.bar(xcor + 2*bar_width, scor_c, label = 'EDF', width=bar_width, color = "red")
 	plt.bar(xcor + 3*bar_width, scor_d, label = 'SJF', width=bar_width, color = "yellow")
-	plt.bar(xcor + 4*bar_width, scor_e, label = 'MTQ', width=bar_width, color = "black")
+	plt.bar(xcor + 4*bar_width, scor_e, label = 'WRR', width=bar_width, color = "black")
 
 	#Label of Score plot
 	plt.xticks(xcor + bar_width*2, x_name)
 	plt.xlabel("users")
 	plt.ylabel("Scores")
-	#plt.ylim(0, 160)
 	plt.title("Scores (alpha=" + str(alpha) + ")")
 	plt.legend()
 
@@ -472,7 +462,7 @@ def main():
 
 
 	# Evaluation  the performance of the algorithms to the expected result.
-	algorithms = ["FIFO", "RR", "EDF", "SJF", "MTQ"]
+	algorithms = ["FIFO", "RR", "EDF", "SJF", "WRR"]
 	y_pos = np.arange((len(algorithms)))
 
 	algorithms_Accuracy = [AlgorithmPerformance(sc)[0] for sc in [scor_a, scor_b, scor_c, scor_d, scor_e]]
@@ -513,7 +503,7 @@ def main():
 	plt.bar(xcor + bar_width, scor_b, label = 'RR', width=bar_width, color = "blue")
 	plt.bar(xcor + 2*bar_width, scor_c, label = 'EDF', width=bar_width, color = "red")
 	plt.bar(xcor + 3*bar_width, scor_d, label = 'SJF', width=bar_width, color = "yellow")
-	plt.bar(xcor + 4*bar_width, scor_e, label = 'MTQ', width=bar_width, color = "black")
+	plt.bar(xcor + 4*bar_width, scor_e, label = 'WRR', width=bar_width, color = "black")
 
 	#Label of Score plot
 	plt.xticks(xcor + bar_width*2, x_name)
@@ -527,7 +517,7 @@ def main():
 
 
 	# Evaluation  the performance of the algorithms to the expected result.
-	algorithms = ["FIFO", "RR", "EDF", "SJF", "MTQ"]
+	algorithms = ["FIFO", "RR", "EDF", "SJF", "WRR"]
 	y_pos = np.arange((len(algorithms)))
 
 	algorithms_Accuracy = [AlgorithmPerformance(sc)[0] for sc in [scor_a, scor_b, scor_c, scor_d, scor_e]]

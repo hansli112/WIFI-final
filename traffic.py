@@ -50,8 +50,7 @@ class Packet:
         self.length = random.randint(64*8, 1518*8)
 
 
-        self.deadline = random.randint(1, 5) * (1 + self.priority)
-
+        self.deadline = 50 #random.randint(1, 5)*(1+self.prioriy) 
         self.time_stamp = time_stamp
 
 
@@ -62,7 +61,6 @@ class Packet:
 
     def getDeadline(self):
         return self.deadline
-
 
 
     def getToWhom(self):
