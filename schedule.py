@@ -23,7 +23,7 @@ class Schedule:
 		self.nextRR = 0 # the next sending index of priority in round-robin
 
 		self.numPriority = 8 # set the number of quantums
-		self.quantum = (1, 2, 3, 4, 5, 6, 7, 8) # set the quantum of each queue manually
+		self.quantum = (8, 7, 6, 5, 4, 3, 2, 1) # set the quantum of each queue manually
 		self.nextMultiLevel = 0
 		self.nextProcessed = 0 # the next processed task of current priority
 
