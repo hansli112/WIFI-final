@@ -50,13 +50,13 @@ class Packet:
         self.length = random.randint(64*8, 1518*8)
 
 
-        self.deadline = 50 #random.randint(1, 5)*(1+self.prioriy) 
+        self.deadline = 20 #random.randint(1, 5)*(1+self.prioriy)
         self.time_stamp = time_stamp
 
 
 
     def __str__(self):
-        return "Packet(dest=" + str(self.ToWhom)  + ")"
+        return "Packet(timestamp=" + str(self.time_stamp)  + ")"
 
 
     def getDeadline(self):
@@ -84,6 +84,8 @@ class Packet:
 
     def RecordLatency(self, arrival_time):
         latency = arrival_time - self.time_stamp
+
+
 
         return latency
 
@@ -114,11 +116,11 @@ class Traffic_generator():
 
         self.pkt_numLog = [0] * UEs_num
 
-    def generate(self, time_stamp):
+    def generate(self, time ):
         pkt_num = []
         self.traffic = {}
 
-        pkt_num  = np.random.randint(5, 10, self.UEs_num)
+        pkt_num  = np.random.randint(1, 3, self.UEs_num)
 
             #If UEs_num==3, pkt_num==[5,5,5] which means their number of packets arrived is 5 at this moment(sec)
 
@@ -128,9 +130,9 @@ class Traffic_generator():
             self.traffic[UE_id] = pkt_storage
 
 
-            for  i in range(pkt_num[UE_id]):  #pkt_num[UE_id]->The number of generated pkts(random length of each pkt) for UE(id=UE_id).
+            for i in range(pkt_num[UE_id]):  #pkt_num[UE_id]->The number of generated pkts(random length of each pkt) for UE(id=UE_id).
 
-                self.traffic[UE_id].append(Packet(UE_id, time_stamp))
+                self.traffic[UE_id].append(Packet(UE_id, time))
 
 
             self.log[UE_id] += total_bits(self.traffic[UE_id])  # record total bits arrival at BS for each UE
@@ -156,6 +158,8 @@ class Traffic_generator():
             print(i)
             print("------------------")
         '''
+
+
 
         random.shuffle(traffic_values) #the order of arrival pkt is random
 
@@ -196,6 +200,16 @@ class Buffer:
     def isEmpty(self):
         return self.buffer == []
 
+
+
+
+
+
+
+
+
+
+
     def enqueue(self, item, current_time):
 
         self.buffer.insert(0,item)
@@ -204,11 +218,25 @@ class Buffer:
         self.buffer = removeNestList(self.buffer) #remove nested list
         #print("self.buffer", self.buffer)
 
-        #drop pkts which are expired
-        self.deadline_drop(currentT=current_time)
-
         if self.isoverflow():  #handle event of  buffer overflowing
             self.overflow_drop()
+
+
+
+        #drop pkts which are expired
+        self.buffer = self.deadline_drop(currentT=current_time)
+
+
+
+        print("enter to examine deadline")
+
+        print("---------------buffer length", len(self.buffer))
+        for i in self.buffer:
+            print(i)
+
+        print("complete examining")
+
+
 
 
 
@@ -245,18 +273,22 @@ class Buffer:
 
             self.drop_log[dropped_pkt.getToWhom()].append(dropped_pkt)
 
-
-
-
     def deadline_drop(self, currentT):
         deadlinedrop = []
         #record which pkts are expired
-        for pkt in self.buffer:
-            if (currentT - pkt.getTimestamp()) > pkt.getDeadline():
-                deadlinedrop.append(pkt)
-                self.buffer.remove(pkt)    #drop it!
+
+        p = 0
+        while p < len(self.buffer):
+
+            if (currentT - self.buffer[p].getTimestamp()) >= self.buffer[p].getDeadline():
+                deadlinedrop.append(self.buffer[p])
+                self.dequeue(self.buffer[p])    #drop it!
+
+            else:
+                p += 1
 
 
+        self.buffer = self.buffer
         #update drop_log
         for dropped_pkt in deadlinedrop:
             if dropped_pkt.getToWhom() not in self.drop_log:
@@ -264,6 +296,8 @@ class Buffer:
                 self.drop_log[dropped_pkt.getToWhom()] = []
 
             self.drop_log[dropped_pkt.getToWhom()].append(dropped_pkt)
+
+        return self.buffer
 
 
 
